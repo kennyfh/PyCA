@@ -14,46 +14,54 @@ pygame.init()
 class VoronoiGrid(Stage):
     def __init__(self, surface):
         super().__init__(surface)
+        self.generateGrid()
+        self.running= False
+        pygame.display.update()
 
-    def generateDiagram(self):
-        points = np.zeros([900, 2], np.uint16)
+    def generateGrid(self):
+        width,height = self.surface.get_size()
+        num_points = 900
+        points = np.zeros([num_points, 2], np.uint16)
         ## NOTA: Si esto no funciona , cambiar de orden los valores 800 y 600 entre ellos
-    
-        # Genera un array de 900 elementos aleatorios entre 0 y 1600
-        points[:, 0] = np.random.randint(0, 800, size=900)
+        # Genera un array de 900 elementos aleatorios entre 0 y width
+        points[:, 0] = np.random.randint(0, width, size=num_points)
+        # Genera un array de 900 elementos aleatorios entre 0 y height
+        points[:, 1] = np.random.randint(0, height, size=num_points)
 
-        # Genera un array de 900 elementos aleatorios entre 0 y 900
-        points[:, 1] = np.random.randint(0, 600, size=900)
+        vor = Voronoi(points)
+        for region in vor.regions:
+            if not -1 in region:
+                polygon = [vor.vertices[i] for i in region]
+                if len(polygon) > 0:
+                    pygame.draw.polygon(self.surface, (255, 255, 255), polygon, 1)
 
-        # Devolvemos Voronoi creado
-        return Voronoi(points)
-
-    def draw_voronoi(self,pygame_surface):
-        # generate voronoi diagram
-        vor = self.generateDiagram()
-
-        # draw all the edges
-        for indx_pair in vor.ridge_vertices:
-            if -1 not in indx_pair:
-
-                start_pos = vor.vertices[indx_pair[0]]
-                end_pos = vor.vertices[indx_pair[1]]
-                pygame.draw.line(pygame_surface, (0, 0, 0), start_pos, end_pos)
+        
 
 
     def update(self):
         return super().update()
     
     def handle_events(self):
-        return super().handle_events()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+        
+        if self.running:
+                self.update()
+                pygame.display.update()
 
     def run(self):
         # Main loop
         while True:
             self.handle_events()
-            self.draw_voronoi(self.surface)
+            #self.surface.fill(COLOR_GRID)
+            
+            pygame.display.update()
+
             time.sleep(0.001)
     
 window = pygame.display.set_mode((800, 600))
 stage = VoronoiGrid(window)
+#stage.generateGrid()
 stage.run()
