@@ -1,6 +1,7 @@
 import time
 import pygame
 import numpy as np
+
 from stage import Stage
 
 COLOR_BG = (10, 10, 10)
@@ -9,8 +10,6 @@ COLOR_DIE_NEXT = (170, 170, 170)
 COLOR_ALIVE_NEXT = (255, 255, 255)
 
 pygame.init()
-pygame.display.set_caption("conway's game of life")
-
 
 class Square(Stage):
     def __init__(self, surface):

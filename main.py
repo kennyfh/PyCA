@@ -6,11 +6,14 @@ from square import Square
 # Inicializar Pygame y Tkinter
 pygame.init()
 root = tk.Tk()
+root.title('Settings')
+pygame.display.set_caption("PyCA - Display")
 
 # Crear la ventana de Tkinter
 root.geometry("200x600")
 # Crear la superficie de Pygame
 game_surface = pygame.display.set_mode((800,600))
+
 
 # Crear el Stage
 # TODO Realizarlo en una variable global
@@ -29,6 +32,7 @@ button1.pack()
 # Creamos un boton para el escenario stage
 button2 = tk.Button(root, text="Square2 Stage", command=generate_new_square)
 button2.pack()
+
 # Bucle principal del programa
 while True:
   # Actualizar el Stage (Cuadrado, Hexagonal, Voronoi)
