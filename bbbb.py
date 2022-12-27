@@ -2,8 +2,9 @@ import tkinter as tk
 import pygame
 import sys
 import time
-from rectangle import Stage
+from square import Stage
 
+global stage
 # Initialize Pygame
 pygame.init()
 

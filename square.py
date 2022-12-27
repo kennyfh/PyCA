@@ -1,6 +1,7 @@
 import time
 import pygame
 import numpy as np
+from stage import Stage
 
 COLOR_BG = (10, 10, 10)
 COLOR_GRID = (40, 40, 40)
@@ -11,7 +12,7 @@ pygame.init()
 pygame.display.set_caption("conway's game of life")
 
 
-class Stage:
+class Square(Stage):
     def __init__(self, surface):
         # Set the surface to draw the stage on
         self.surface = surface
@@ -56,8 +57,6 @@ class Stage:
             pygame.draw.rect(self.surface, color, (col * 10, row * 10, 10 - 1, 10 - 1))
 
         self.grid = updated_cells
-
-    
         
     def handle_events(self):
         for event in pygame.event.get():
@@ -70,8 +69,17 @@ class Stage:
             if pygame.mouse.get_pressed()[0]:
                 pos = pygame.mouse.get_pos()
                 row, col = pos[1] // 10, pos[0] // 10
-                self.grid[row, col] = 1 - self.grid[row, col]  # Toggle between 0 and 1
-                color = COLOR_BG if self.grid[row, col] == 0 else COLOR_ALIVE_NEXT
+                self.grid[row, col] = 1 # - self.grid[row, col]  # Toggle between 0 and 1
+                # color = COLOR_BG if self.grid[row, col] == 0 else COLOR_ALIVE_NEXT
+                color = COLOR_ALIVE_NEXT
+                pygame.draw.rect(self.surface, color, (col * 10, row * 10, 10 - 1, 10 - 1))
+                pygame.display.update()
+            elif pygame.mouse.get_pressed()[2]:
+                pos = pygame.mouse.get_pos()
+                row, col = pos[1] // 10, pos[0] // 10
+                self.grid[row, col] = 0 # - self.grid[row, col]  # Toggle between 0 and 1
+                # color = COLOR_BG if self.grid[row, col] == 0 else COLOR_ALIVE_NEXT
+                color = COLOR_BG
                 pygame.draw.rect(self.surface, color, (col * 10, row * 10, 10 - 1, 10 - 1))
                 pygame.display.update()
         if self.running:
@@ -89,6 +97,7 @@ class Stage:
 
             time.sleep(0.001)
 
+# Prueba de que funciona correctamente
 #window = pygame.display.set_mode((800, 600))
-#stage = Stage(window)
+#stage = Square(window)
 #stage.run()

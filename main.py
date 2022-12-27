@@ -1,79 +1,44 @@
 import pygame
-import pygame.font
-import pygame.event
-import sys
-import rectangle
+import tkinter as tk
 import time
+from square import Square
 
-# Initialize Pygame
+# Inicializar Pygame y Tkinter
 pygame.init()
+root = tk.Tk()
 
-# Set the window size
-window_size = (800, 600)
+# Crear la ventana de Tkinter
+root.geometry("200x600")
+# Crear la superficie de Pygame
+game_surface = pygame.display.set_mode((800,600))
 
-# Create the window
-screen = pygame.display.set_mode(window_size)
+# Crear el Stage
+# TODO Realizarlo en una variable global
+stage = Square(game_surface)
 
-# Set the font and size for the menu
-font = pygame.font.Font(None, 32)
+## Funciones para crear nuevas instancias del 
+# escenario cuando se pulse el botón
+def generate_new_square():
+  global stage
+  stage = Square(game_surface)
 
-# Set the width of the menu
-menu_width = 200
+# Creamos un boton para el escenario stage
+button1 = tk.Button(root, text="Square Stage", command=generate_new_square)
+button1.pack()
 
-# Create a function to draw the menu
-def draw_menu(options, font, surface):
-  # Determine the size of the surface
-  surface_size = surface.get_size()
-  
-  # Create a list to hold the rendered options
-  rendered_options = []
-  
-  # Render each option
-  for option in options:
-    rendered_options.append(font.render(option, 1, (255, 255, 255)))
-  
-  # Calculate the position of each option
-  x = 10
-  y = surface_size[1] / 2
-  y_offset = font.size(options[0])[1]
-  
-  # Draw the options onto the surface
-  for option in rendered_options:
-    surface.blit(option, (x, y))
-    y += y_offset
-
-def draw_game(surface):
-  # Set the background color
-  surface.fill((0, 0, 0))
-  
-  # Draw a circle at the center of the screen
-  pygame.draw.circle(surface, (255, 255, 255), (surface.get_width() / 2, surface.get_height() / 2), 50)
-
-# Set the options for the menu
-options = ['Option 1', 'Option 2', 'Option 3']
-
-
-game_surface = pygame.Surface((window_size[0] - menu_width, window_size[1]))
-# Create the stage
-stage = rectangle.Stage(game_surface)
-
-# Main loop
+# Creamos un boton para el escenario stage
+button2 = tk.Button(root, text="Square2 Stage", command=generate_new_square)
+button2.pack()
+# Bucle principal del programa
 while True:
-  # Handle events
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      pygame.quit()
-      sys.exit()
-  
-  # Draw the menu
-  draw_menu(options, font, screen)
-  
-  # Update and draw the stage
+  # Actualizar el Stage (Cuadrado, Hexagonal, Voronoi)
   stage.handle_events()
-  
-  # Draw the game surface onto the main screen
-  screen.blit(game_surface, (menu_width, 0))
-  
-  # Update the display
-  pygame.display.update()
+
+  # Si el programa sigue funcionando
+  if stage.running:
+    stage.update()
+    pygame.display.update()
+
   time.sleep(0.001)
+
+  root.update()
