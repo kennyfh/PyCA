@@ -2,7 +2,7 @@ import pygame
 import tkinter as tk
 import time
 from square import Square
-
+from Hexagon import Hexagon
 # Inicializar Pygame y Tkinter
 pygame.init()
 root = tk.Tk()
@@ -24,13 +24,17 @@ stage = Square(game_surface)
 def generate_new_square():
   global stage
   stage = Square(game_surface)
+  
+def generate_new_hexagon():
+  global stage
+  stage = Hexagon(game_surface)
 
 # Creamos un boton para el escenario stage
 button1 = tk.Button(root, text="Square Stage", command=generate_new_square)
 button1.pack()
 
 # Creamos un boton para el escenario stage
-button2 = tk.Button(root, text="Square2 Stage", command=generate_new_square)
+button2 = tk.Button(root, text="Hexagon Stage", command=generate_new_hexagon)
 button2.pack()
 
 # Bucle principal del programa
