@@ -1,11 +1,5 @@
 # PyCA: Cellular automaton in Python
 
-## Group Members
-* Kenny Jesús Flores Huamán
-  * kenflohua AT alum.us.es
-* Teodoro Jiménez Lepe
-  * teojimenezlepe AT hotmail.com
-
 The goal was develop an open source software to recreate cellular automaton on differents meshes  (square, hex, voronoi), widely studied models, such as [Game of Life](https://web.stanford.edu/class/sts145/Library/life.pdf). For this purpose, we have decided to choose the Python programming language, because of its numerous libraries.
 
 ## Getting Started
@@ -48,8 +42,17 @@ This project is licensed under the GNU General Public License version 3.0 (GPL-3
 
 ## Acknowledgements
 
-Credits and references to any external resources or libraries used in the project.
+- This project would not have been possible without the amazing [Python](https://www.python.org/) programming language.
+- We used [Pygame](https://www.pygame.org/) to build the graphics.
+- [Tkinter](https://docs.python.org/3/library/tkinter.html) was used for the user interface.
+- Special thanks to the developers and maintainers of these open source libraries.
 
 ## Wiki
 
-The project's GitHub wiki contains additional documentation and resources. You can access it [here](https://github.com/USERNAME/REPO/wiki).
+The project's GitHub wiki contains additional documentation and resources. You can access it [here](https://github.com/kennyfh/PyCA/wiki).
+
+## Team
+* Kenny Jesús Flores Huamán
+  * kenflohua AT alum.us.es
+* Teodoro Jiménez Lepe
+  * teojimenezlepe AT hotmail.com
