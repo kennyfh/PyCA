@@ -13,7 +13,7 @@ pygame.init()
 
 class VoronoiGrid(Stage):
     def __init__(self, surface):
-        super().__init__(surface)
+        self.surface = surface
         self.generateGrid()
         self.running= False
         pygame.display.update()
@@ -61,7 +61,7 @@ class VoronoiGrid(Stage):
 
             time.sleep(0.001)
     
-window = pygame.display.set_mode((800, 600))
-stage = VoronoiGrid(window)
+#window = pygame.display.set_mode((800, 600))
+#stage = VoronoiGrid(window)
 #stage.generateGrid()
-stage.run()
+#stage.run()

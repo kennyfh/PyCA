@@ -81,9 +81,6 @@ class Square(Stage):
                 color = COLOR_BG
                 pygame.draw.rect(self.surface, color, (col * 10, row * 10, 10 - 1, 10 - 1))
                 pygame.display.update()
-        if self.running:
-                self.update()
-                pygame.display.update()
 
     def run(self):
         # Main loop
