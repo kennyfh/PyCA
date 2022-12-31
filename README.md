@@ -51,7 +51,5 @@ This project is licensed under the GNU General Public License version 3.0 (GPL-3
 The project's GitHub wiki contains additional documentation and resources. You can access it [here](https://github.com/kennyfh/PyCA/wiki).
 
 ## Team
-* Kenny Jesús Flores Huamán
-  * kenflohua AT alum.us.es
-* Teodoro Jiménez Lepe
-  * teojimenezlepe AT hotmail.com
+* Kenny Jesús Flores Huamán (kenflohua AT alum.us.es)
+* Teodoro Jiménez Lepe (teojimenezlepe AT hotmail.com)
