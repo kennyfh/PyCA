@@ -48,5 +48,4 @@ while True:
     pygame.display.update()
 
   time.sleep(0.001)
-
   root.update()
