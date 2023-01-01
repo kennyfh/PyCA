@@ -2,7 +2,7 @@ import time
 import pygame
 import numpy as np
 from scipy.spatial import Voronoi
-from pixel_perfect_polygon_hitbox import ordered_vertices, is_in_polygon
+from order_vertices import ordered_vertices, is_in_polygon
 
 from stage import Stage
 
@@ -253,7 +253,7 @@ class VoronoiGrid(Stage):
             time.sleep(0.001)
 
 # Check this script independetly: (do not uncomment if running main.py)
-window = pygame.display.set_mode((800, 600))
-stage = VoronoiGrid(window)
-stage.run()
+#window = pygame.display.set_mode((800, 600))
+#stage = VoronoiGrid(window)
+#stage.run()
 

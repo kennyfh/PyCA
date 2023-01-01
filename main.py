@@ -1,10 +1,12 @@
 import pygame
 import tkinter as tk
 from tkinter import colorchooser
+import re
 import time
 from square import Square
 from Hexagon import Hexagon
 from voronoi import VoronoiGrid
+
 # Inicializar Pygame y Tkinter
 pygame.init()
 root = tk.Tk()
@@ -12,14 +14,9 @@ root.title('Settings')
 pygame.display.set_caption("PyCA - Display")
 
 # Crear la ventana de Tkinter
-root.geometry("650x450")
+root.geometry("820x450")
 # Crear la superficie de Pygame
 game_surface = pygame.display.set_mode((800,600))
-
-
-# Configure the window to allow the widgets to resize with the window
-
-root.rowconfigure(9, weight=1)
 
 # Crear el Stage
 # TODO Realizarlo en una variable global
@@ -39,11 +36,38 @@ def generate_new_Voronoi():
   global stage
   stage = VoronoiGrid(game_surface)
 
-# Fila 0
-label1 = tk.Label(root,text="Stage:")
-label1.grid(row=0,column=0)
+# Generate Header
+header_label = tk.Label(root, text="Welcome to PyCA", font=("Helvetica", 18))
+header_label.grid(row=0, column=1, columnspan=2, pady=20, padx=20, sticky="nsew")
 
-# Fila 1
+label1 = tk.Label(root,text="Stage:",font=("Helvetica", 10))
+label1.grid(row=1,column=0)
+
+#####
+# LOG FUNC
+#####
+
+frame = tk.Frame(root)
+frame.grid(row=5, column=0, columnspan=4, sticky="we", padx=10, pady=10)
+
+# Create a Text widget to display the log
+log_text = tk.Text(frame)
+log_text.pack(side=tk.RIGHT)
+
+# Create a Scrollbar widget and link it to the Text widget
+scrollbar = tk.Scrollbar(frame, command=log_text.yview)
+scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+log_text.configure(yscrollcommand=scrollbar.set)
+
+# Function to append a message to the log
+def log(message):
+    log_text.insert(tk.END, message + "\n")
+
+log("Welcome to PyCA software!")
+
+
+
+# Row 1
 # Creamos un boton para el escenario stage
 button1 = tk.Button(root, text="Square", command=generate_new_square)
 button1.grid(row=1, column=1, padx=5, pady=10)
@@ -56,91 +80,116 @@ button2.grid(row=1, column=2,padx=5, pady=10)
 button3 = tk.Button(root, text="Voronoi", command=generate_new_Voronoi)
 button3.grid(row=1, column=3,padx=5, pady=10)
 
-# Fila 2
-label2 = tk.Label(root,text="Choose colors:")
-label2.grid(row=2,column=0) # ,columnspan=1
+# Row 3
 
-# Fila 3
-
-def change_color_alive():
+def change_color1():
   color = colorchooser.askcolor()
   # TODO: CREAR UNA FORMA DE MODIFICAR EN STAGE EL COLOR DE ALIVE
   print(color)
 
-def change_color_dead():
+def change_color2():
   color = colorchooser.askcolor()
   # TODO: CREAR UNA FORMA DE MODIFICAR EN STAGE EL COLOR DE DEAD
   print(color)
 
-label3 = tk.Label(root,text="Alive:")
-label3.grid(row=3,column=0)
+def change_color3():
+  color = colorchooser.askcolor()
+  # TODO: CREAR UNA FORMA DE MODIFICAR EN STAGE EL COLOR DE DEAD
+  print(color)  
 
-button4 = tk.Button(root, text="Color1", command=change_color_alive) # 
-button4.grid(row=3, column=1,padx=5, pady=10)
+color1 = tk.Label(root,text="Color1",font=("Helvetica", 10))
+color1.grid(row=2,column=0, padx=5, pady=5)
 
-label4 = tk.Label(root,text="Dead:")
-label4.grid(row=3,column=2)
+btnc1 = tk.Button(root, text="Change Color", command=change_color1)
+btnc1.grid(row=2, column=1)
 
-button5 = tk.Button(root, text="Color2", command=change_color_dead) # 
-button5.grid(row=3, column=3,padx=5, pady=10)
+color2 = tk.Label(root,text="Color2",font=("Helvetica", 10))
+color2.grid(row=2,column=2)
 
-# Fila 4
-label5 = tk.Label(root,text="Select L:")
-label5.grid(row=4,column=0,columnspan=1)
+btnc2 = tk.Button(root, text="Change Color", command=change_color2)
+btnc2.grid(row=2, column=3)
 
-# Fila 5
-# Create the volume bar
-volume = tk.Scale(from_=0.55, to=5.75, digits = 3,orient=tk.HORIZONTAL,resolution = 0.01) # , label = "Select L:"
-volume.grid(row=5,column=1,columnspan=1)
+color3 = tk.Label(root,text="Color3",font=("Helvetica", 10))
+color3.grid(row=2,column=4)
 
-# Fila 6
-label6 = tk.Label(root,text="Rules")
-label6.grid(row=6,column=0,columnspan=1)
+btnc3 = tk.Button(root, text="Change Color", command=change_color3) 
+btnc3.grid(row=2, column=5)
 
-# Fila 7
+
+#####################
+# L system
+#####################
+changeL = tk.Label(root,text="Select L:",font=("Helvetica", 10))
+changeL.grid(row=3,column=0,columnspan=1)
+
+scale = tk.Scale(from_=3, to=200, digits = 3,orient=tk.HORIZONTAL,resolution = 0.01)
+scale.grid(row=3,column=1,columnspan=1)
+
+def apply_grid_size():
+  value = scale.get()
+  # TODO: podemos programar para que en el log aparezca que hemos cambiado los elementos a 0
+  log(f"L size is now: {value} pixels")
+
+btnL = tk.Button(root, text="Apply Size", command=apply_grid_size)
+btnL.grid(row=3, column=2)
+
+#######
+# RULES 
+#######
+
+rules = tk.Label(root,text="Rules",font=("Helvetica", 10))
+rules.grid(row=4,column=0)
+
 label7 = tk.Entry(root)
-label7.grid(row=7,column=1,columnspan=1)
+label7.grid(row=4,column=1, padx=5, pady=15)
 
-def send_message():
+def send_rule():
+  """
+  Send rule to the system
+  """
   msg = label7.get()
-  print(msg)
+  if is_rule_valid(msg):
+    # TODO: APLICAR LA REGLA EN NUESTRO STAGE
+    log(f"The new rule is: {msg}")
+  else:
+    log("Please set a valid rule")
+    
 
-button6 = tk.Button(root, text="Set rule", command=send_message) # , command=change_color_dead
-button6.grid(row=7, column=2)
+def is_rule_valid(rule:str) -> bool:
+  print(rule)
+  def is_asc_unique(ls:list) -> bool:
+    nums = [int(x) for x in ls]
+    # Check if numbers are in ascending order
+    for i in range(1,len(nums)):
+      if nums[i] < nums[i-1]:
+        return False
+    if len(nums) != len(set(nums)):
+      return False
+    return True
 
-# Fila 8
-label8 = tk.Label(root,text="Log")
-label8.grid(row=8,column=1,columnspan=1)
+  if re.match(r"^B([0-9]{1,9})/S([0-9]{1,9})$",rule):
+    print("ENTRAAAAAAAAA")
+    # Split the rule
+    b,s = rule.split("/")
+    b_cond = b[1:]
+    s_cond = s[1:]
+    print(b_cond)
+    print(s_cond)
+    if is_asc_unique(b_cond) and is_asc_unique(s_cond):
+      return True
+  return False
+  
 
-# Fila 9
-# Create a frame to hold the Text widget and the Scrollbar widget
-frame = tk.Frame(root)
-frame.grid(row=9, column=0, columnspan=4, sticky="we")
+send_rule = tk.Button(root, text="Set rule", command=send_rule)
+send_rule.grid(row=4, column=2)
 
-# Create a Text widget to display the log
-log_text = tk.Text(frame)
-log_text.pack(side=tk.LEFT)
 
-# Create a Scrollbar widget and link it to the Text widget
-scrollbar = tk.Scrollbar(frame, command=log_text.yview)
-scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-log_text.configure(yscrollcommand=scrollbar.set)
-
-# Function to append a message to the log
-def log(message):
-    log_text.insert(tk.END, message + "\n")
-
-log("This is a test message.")
-
-# Bucle principal del programa
+# Main Loop
 while True:
-  # Actualizar el Stage (Cuadrado, Hexagonal, Voronoi)
+  # Update the Stage (Square, Hexagon, Voronoi)
   stage.handle_events()
-
-  # Si el programa sigue funcionando
   if stage.running:
     stage.update()
     pygame.display.update()
-
   time.sleep(0.001)
   root.update()
