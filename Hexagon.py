@@ -24,7 +24,7 @@ COLOR_SURVIVED = COLOR_RED
 
 # Create your own rules based on number of neighbours!
 alive_neighbours_to_be_born = [2]
-alive_neighbours_to_survive = [1]
+alive_neighbours_to_survive = [2]
 
 # B1S- makes cool patterns
 # B-S123456 too
@@ -42,7 +42,7 @@ Ly = 600
 # In square and hexagonal grids, it refers to the side length, but in voronoi it could
 # be proportionate to the inverse of the number of cells (which indicates qualitative
 # size)
-L = 5.5
+L = 14
 
 # Calculations to adapt grid to the screen according to Lx, Ly and L:
 effective_width = np.sqrt(3)*L + 3
@@ -252,7 +252,7 @@ class Hexagon(Stage):
             time.sleep(0.001)
 
 # Check this script independetly: (do not uncomment if running main.py)
-# window = pygame.display.set_mode((800, 600))
-# stage = Hexagon(window)
-# stage.run()
+window = pygame.display.set_mode((800, 600))
+stage = Hexagon(window)
+stage.run()
 
