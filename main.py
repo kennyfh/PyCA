@@ -152,12 +152,11 @@ def send_rule():
     # TODO: APLICAR LA REGLA EN NUESTRO STAGE
     log(f"The new rule is: {msg}")
   else:
-    log("Please set a valid rule")
+    log(f"The rule {msg} is invalid. Please set a valid rule")
     
 
 def is_rule_valid(rule:str) -> bool:
-  print(rule)
-  def is_asc_unique(ls:list) -> bool:
+  def is_asc_unique(ls:str) -> bool:
     nums = [int(x) for x in ls]
     # Check if numbers are in ascending order
     for i in range(1,len(nums)):
