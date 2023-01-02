@@ -35,18 +35,9 @@ alive_neighbours_to_survive = [2]
 Lx = 800
 Ly = 600
 
-# Length of the size of the regular hexagon. It would be ideal
-# to make "cell size" an abstract parameter in every dird (square and voronoi too).
-# In square and hexagonal grids, it refers to the side length, but in voronoi it could
-# be proportionate to the inverse of the number of cells (which indicates qualitative
-# size)
-L = 14
-
-# Toggle between empty and random initial state
-initial_alive_probability = 0.0
 
 class Stage:
-    def __init__(self, surface, L = 10, COLOR_JUST_BORN = (255,255,255), COLOR_SURVIVED = (255,255,255),alive_neighbours_to_be_born = [3],alive_neighbours_to_survive = [2,3], initial_alive_probability = 0, delay = 0.001):
+    def __init__(self, surface, L = 10, COLOR_JUST_BORN = (255,255,255), COLOR_SURVIVED = (255,255,255),alive_neighbours_to_be_born = [3],alive_neighbours_to_survive = [2,3], initial_alive_probability = 0):
         self.surface = surface
         self.L = L
         self.COLOR_JUST_BORN = COLOR_JUST_BORN
