@@ -19,7 +19,7 @@ pygame.init()
 
 # Class for the hexagonal stage:
 class Square(Stage):
-    def __init__(self, surface, L = 10, COLOR_JUST_BORN = (0,255,0), COLOR_SURVIVED = (255,0,0), alive_neighbours_to_be_born = [3], alive_neighbours_to_survive = [2,3], initial_alive_probability = 0, delay = 0.05):
+    def __init__(self, surface, L = 10, COLOR_JUST_BORN = (0,255,0), COLOR_SURVIVED = (255,0,0), alive_neighbours_to_be_born = [3], alive_neighbours_to_survive = [2,3], initial_alive_probability = 0):
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED, alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability, delay)
         
@@ -182,7 +182,7 @@ class Square(Stage):
             self.handle_events()
             #self.surface.fill(COLOR_GRID)
             if self.running:
-                time.sleep(self.delay)
+                time.sleep(delay)
                 self.update()
 
 # Check this script independetly: (do not uncomment if running main.py)

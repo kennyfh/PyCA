@@ -54,7 +54,6 @@ class Stage:
         self.alive_neighbours_to_be_born = alive_neighbours_to_be_born
         self.alive_neighbours_to_survive = alive_neighbours_to_survive
         self.initial_alive_probability = initial_alive_probability
-        self.delay = delay
 
     def update(self):
         pass

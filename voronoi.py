@@ -45,7 +45,7 @@ Ly = 600
 # In square and hexagonal grids, it refers to the side length, but in voronoi it could
 # be proportionate to the inverse of the number of cells (which indicates qualitative
 # size)
-L = 10
+L = 15
 number_of_seeds = np.floor(Lx*Ly/L**2).astype(int) 
 # number_of_seeds= 700
 # print('Number of seeds to generate Voronoi diagram: {}'.format(number_of_seeds))
@@ -124,8 +124,11 @@ class VoronoiGrid(Stage):
         for cell in range(self.number_of_regions):
             for vertex_label in self.voronoi_vertices_labels[cell]:
                 for other_cell in range(self.number_of_regions):
-                    if vertex_label in self.voronoi_vertices_labels[other_cell] and other_cell not in self.neighbours[cell] and other_cell != cell:
+                    if vertex_label in self.voronoi_vertices_labels[other_cell] and \
+                        other_cell not in self.neighbours[cell] and \
+                        cell not in self.neighbours[other_cell] and other_cell != cell:
                         self.neighbours[cell].append(other_cell)
+                        self.neighbours[other_cell].append(cell)
         
         # Create and display initial state grid
         self.grid = np.zeros(self.number_of_regions)
