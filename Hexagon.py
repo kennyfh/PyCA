@@ -11,9 +11,6 @@ COLOR_BLACK = (10, 10, 10)
 COLOR_WHITE = (255,255,255)
 COLOR_GRID = (40, 40, 40)
 
-# EVANGELION_GREEN = (10,144,98)
-# EVANGELION_PURPLE = (157,68,199)
-
 # Start pygame
 pygame.init()
 
@@ -21,7 +18,7 @@ pygame.init()
 class Hexagon(Stage):
     def __init__(self, surface, L = 10, COLOR_JUST_BORN = (0,255,0), COLOR_SURVIVED = (255,0,0), alive_neighbours_to_be_born = [2],alive_neighbours_to_survive = [2], initial_alive_probability = 0):
         # Set the surface to draw the stage on
-        super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED, alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability, delay)
+        super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED, alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
         
         # Set the background color
         self.surface.fill(COLOR_GRID)
@@ -217,14 +214,14 @@ class Hexagon(Stage):
                         else:
                             print('This cell {} is dead'.format((col, row)))
                         print('Alive neighbours: {}'.format(self.alive_hexagon(self.grid,col,row)))
-    def run(self):
-        # Main loop
-        while True:
-            self.handle_events()
-            #self.surface.fill(COLOR_GRID)
-            if self.running:
-                time.sleep(delay)
-                self.update()
+    # def run(self):
+    #     # Main loop
+    #     while True:
+    #         self.handle_events()
+    #         #self.surface.fill(COLOR_GRID)
+    #         if self.running:
+    #             time.sleep(delay)
+    #             self.update()
 
 # Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))

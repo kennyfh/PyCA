@@ -6,68 +6,27 @@ from pixel_perfect_polygon_hitbox import ordered_vertices, is_in_polygon
 
 from stage import Stage
 
-COLOR_BLACK = (10, 10, 10)
-COLOR_WHITE = (255, 255, 255)
-COLOR_RED=(255,0,0)
-COLOR_GREEN=(0,255,0)
-COLOR_BLUE=(0,0,255)
-
-COLOR_GRID = (40, 40, 40)
-COLOR_BACKGROUND = (126, 126, 126)
-
-# EVANGELION_GREEN = (10,144,98)
-# EVANGELION_PURPLE = (157,68,199)
-
-################################################################################################################################################
-# Parameters that should be controled by the user through tkinter interface: 
-################################################################################################################################################
-# Customize birth and survival colors!
-COLOR_JUST_BORN = COLOR_GREEN
-COLOR_SURVIVED = COLOR_RED
-
-# Create your own rules based on number of neighbours!
-alive_neighbours_to_be_born = [2]
-alive_neighbours_to_survive = [2,3]
-
-# B1S- makes cool patterns
-# B-S123456 too
-# B2S2 has some blinkers and is similar to B2S23 square grid in proportion to neighbourhood
-# Check B2S345 and others B2S-
-# Look for reference of previous works (some rules show gliders)
-
-
-# These are supposedly constant values: (screen dimensions)
 Lx = 800
 Ly = 600
 
-# Length of the size of the regular hexagon. It would be ideal
-# to make "cell size" an abstract parameter in every dird (square and voronoi too).
-# In square and hexagonal grids, it refers to the side length, but in voronoi it could
-# be proportionate to the inverse of the number of cells (which indicates qualitative
-# size)
-L = 15
-number_of_seeds = np.floor(Lx*Ly/L**2).astype(int) 
-# number_of_seeds= 700
-# print('Number of seeds to generate Voronoi diagram: {}'.format(number_of_seeds))
-
-# Toggle between empty and random initial state
-initial_alive_probability = 0.0
-################################################################################################################################################
-################################################################################################################################################
+COLOR_BLACK = (10, 10, 10)
+COLOR_WHITE = (255,255,255)
+COLOR_GRID = (40, 40, 40)
 
 # Start pygame
 pygame.init()
 
 # Class for the hexagonal stage:
 class VoronoiGrid(Stage):
-    def __init__(self, surface):
+    def __init__(self, surface, L = 25, COLOR_JUST_BORN = (0,255,0), COLOR_SURVIVED = (255,0,0), alive_neighbours_to_be_born = [3],alive_neighbours_to_survive = [2,3], initial_alive_probability = 0):
         # Set the surface to draw the stage on
-        self.surface = surface
+        super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED, alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
 
         # Set the size of the stage
         self.size = surface.get_size()
         
         # Set the size of the grid
+        number_of_seeds = np.floor((Lx*Ly/self.L**2)).astype(int)
         points = np.zeros([number_of_seeds, 2])
         points[:, 0] = np.random.randint(0, Lx, size = number_of_seeds)
         points[:, 1] = np.random.randint(0, Ly, size = number_of_seeds)
@@ -109,13 +68,28 @@ class VoronoiGrid(Stage):
         self.average_number_of_vertices = np.average([len(vertex) for vertex in self.voronoi_vertices])
         print(self.average_number_of_vertices)
         # Update screen:
-        pygame.display.update()
+        pygame.display.flip()
          
         # Toggle between all dead and random initial state 
         self.initial_alive_probability = initial_alive_probability # 0 to 1 
         
         # Color to fill the hexagon (changes after every step)
         self.color = np.ndarray((self.number_of_regions), dtype=object)
+        
+        # Create and display initial state grid
+        self.grid = np.zeros(self.number_of_regions)
+        for cell in range(self.number_of_regions):
+            if np.random.rand() < self.initial_alive_probability: # Threshold for initial alive state
+                self.grid[cell] = 1 # Tag alive cells with 1
+                self.color[cell] = COLOR_WHITE # Color them white
+            else:
+                self.grid[cell] = 0 # Tag dead cells with 0
+                self.color[cell] = COLOR_BLACK # Color them white
+            # Display on hexagons on screen ans storage their rectangular hitbox: 
+            pygame.draw.polygon(self.surface, self.color[cell], self.voronoi_vertices[cell])
+            pygame.draw.polygon(self.surface, COLOR_GRID, self.voronoi_vertices[cell], 2)
+        # Update screen:
+        pygame.display.update()
                  
         # Neighbours for voronoi regions 
         self.neighbours = np.ndarray((self.number_of_regions), dtype=object)
@@ -128,22 +102,7 @@ class VoronoiGrid(Stage):
                         other_cell not in self.neighbours[cell] and \
                         cell not in self.neighbours[other_cell] and other_cell != cell:
                         self.neighbours[cell].append(other_cell)
-                        self.neighbours[other_cell].append(cell)
-        
-        # Create and display initial state grid
-        self.grid = np.zeros(self.number_of_regions)
-        for cell in range(self.number_of_regions):
-            if np.random.rand() < initial_alive_probability: # Threshold for initial alive state
-                self.grid[cell] = 1 # Tag alive cells with 1
-                self.color[cell] = COLOR_WHITE # Color them white
-            else:
-                self.grid[cell] = 0 # Tag dead cells with 0
-                self.color[cell] = COLOR_BLACK # Color them white
-            # Display on hexagons on screen ans storage their rectangular hitbox: 
-            pygame.draw.polygon(self.surface, self.color[cell], self.voronoi_vertices[cell])
-            pygame.draw.polygon(self.surface, COLOR_GRID, self.voronoi_vertices[cell], 2)
-        # Update screen:
-        pygame.display.update()
+                        self.neighbours[other_cell].append(cell)    
 
         # Set the running flag to False
         self.running = False    
@@ -167,17 +126,17 @@ class VoronoiGrid(Stage):
             if self.grid[cell] == 1:
                 # Check if the conditions for birth are met. 
                 # Updated grid and color are changed accordingly.
-                if alive_neighbours in alive_neighbours_to_survive:
+                if alive_neighbours in self.alive_neighbours_to_survive:
                     updated_cells[cell] = 1
-                    self.color[cell] = COLOR_SURVIVED
+                    self.color[cell] = self.COLOR_SURVIVED
                 else:
                     self.color[cell] = COLOR_BLACK
                 # Check if the conditions for survival are met. 
                 # Updated grid and color are changed accordingly. 
             else:
-                if alive_neighbours in alive_neighbours_to_be_born:
+                if alive_neighbours in self.alive_neighbours_to_be_born:
                     updated_cells[cell] = 1
-                    self.color[cell] = COLOR_JUST_BORN
+                    self.color[cell] = self.COLOR_JUST_BORN
                 else:
                     self.color[cell] = COLOR_BLACK
                 # Note that COLOR_SURVIVED and COLOR_JUST_BORN both mean "alive",
@@ -256,15 +215,15 @@ class VoronoiGrid(Stage):
                             print('Vertices labels: {}'.format(self.voronoi_vertices_labels[cell]))
                             print('Neighbours: {}'.format(self.neighbours[cell]))
                             print('Alive neighbours: {}'.format(self.alive_voronoi(cell)))
-    def run(self):
-        # Main loop
-        while True:
-            self.handle_events()
-            #self.surface.fill(COLOR_GRID)
-            if self.running:
-                # time.sleep(self.delay)
-                time.sleep(0.1)
-                self.update()            
+    # def run(self):
+    #     # Main loop
+    #     while True:
+    #         self.handle_events()
+    #         #self.surface.fill(COLOR_GRID)
+    #         if self.running:
+    #             # time.sleep(self.delay)
+    #             time.sleep(0.1)
+    #             self.update()            
 
 # Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))
