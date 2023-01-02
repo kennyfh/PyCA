@@ -4,77 +4,42 @@ import numpy as np
 
 from stage import Stage
 
-COLOR_BLACK = (10, 10, 10)
-COLOR_WHITE = (255, 255, 255)
-COLOR_RED=(255,0,0)
-COLOR_GREEN=(0,255,0)
-COLOR_BLUE=(0,0,255)
+Lx = 800
+Ly = 600
 
+COLOR_BLACK = (10, 10, 10)
+COLOR_WHITE = (255,255,255)
 COLOR_GRID = (40, 40, 40)
 
 # EVANGELION_GREEN = (10,144,98)
 # EVANGELION_PURPLE = (157,68,199)
-
-################################################################################################################################################
-# Parameters that should be controled by the user through tkinter interface: 
-################################################################################################################################################
-# Customize birth and survival colors!
-COLOR_JUST_BORN = COLOR_GREEN
-COLOR_SURVIVED = COLOR_RED
-
-# Create your own rules based on number of neighbours!
-alive_neighbours_to_be_born = [2]
-alive_neighbours_to_survive = [2]
-
-# B1S- makes cool patterns
-# B-S123456 too
-# B2S2 has some blinkers and is similar to B2S23 square grid in proportion to neighbourhood
-# Check B2S345 and others B2S-
-# Look for reference of previous works (some rules show gliders)
-
-
-# These are supposedly constant values: (screen dimensions)
-Lx = 800
-Ly = 600
-
-# Length of the size of the regular hexagon. It would be ideal
-# to make "cell size" an abstract parameter in every dird (square and voronoi too).
-# In square and hexagonal grids, it refers to the side length, but in voronoi it could
-# be proportionate to the inverse of the number of cells (which indicates qualitative
-# size)
-L = 5.5
-
-# Calculations to adapt grid to the screen according to Lx, Ly and L:
-effective_width = np.sqrt(3)*L + 3
-effective_height = L + 2
-nx = np.floor(Lx/effective_width-1/2).astype(int)
-ny = np.floor((2/3)*(Ly/effective_height - 0.5)).astype(int)
-if ny % 2 != 0:
-    ny = ny - 1
-
-# Toggle between empty and random initial state
-initial_alive_probability = 0.0
-################################################################################################################################################
-################################################################################################################################################
 
 # Start pygame
 pygame.init()
 
 # Class for the hexagonal stage:
 class Hexagon(Stage):
-    def __init__(self, surface):
+    def __init__(self, surface, L = 10, COLOR_JUST_BORN = (0,255,0), COLOR_SURVIVED = (255,0,0), alive_neighbours_to_be_born = [2],alive_neighbours_to_survive = [2], initial_alive_probability = 0, delay = 0.1):
         # Set the surface to draw the stage on
-        self.surface = surface
+        super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED, alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability, delay)
         
         # Set the background color
         self.surface.fill(COLOR_GRID)
 
         # Set the size of the stage
         self.size = surface.get_size()
+        
+        # Calculations to adapt grid to the screen according to Lx, Ly and L:
+        effective_width = np.sqrt(3)*self.L + 3
+        effective_height = self.L + 2
+        nx = np.floor(Lx/effective_width-1/2).astype(int)
+        ny = np.floor((2/3)*(Ly/effective_height - 0.5)).astype(int)
+        if ny % 2 != 0:
+            ny = ny - 1
 
         # Set the size of the grid
         self.grid_size = (nx, ny)
-        
+                
         # Toggle between all dead and random initial state 
         self.initial_alive_probability = initial_alive_probability # 0 to 1 
         
@@ -86,7 +51,10 @@ class Hexagon(Stage):
         
         # Create and display initial state grid
         self.grid = np.zeros((nx, ny))
+        self.hexagon_vertices = np.ndarray((nx, ny), dtype=object)
         for col, row in np.ndindex(self.grid.shape):
+            # Get vertices of every hexagon before running
+            self.hexagon_vertices[col, row] = self.calculate_hexagon_vertices(col, row, self.L)
             if np.random.rand() < initial_alive_probability: # Threshold for initial alive state
                 self.grid[col, row] = 1 # Tag alive cells with 1
                 self.color[col, row] = COLOR_WHITE # Color them white
@@ -94,7 +62,7 @@ class Hexagon(Stage):
                 self.grid[col, row] = 0 # Tag dead cells with 0
                 self.color[col, row] = COLOR_BLACK # Color them white
             # Display on hexagons on screen ans storage their rectangular hitbox: 
-            self.RectHitbox[col, row] = pygame.draw.polygon(self.surface, self.color[col,row], self.hexagon_vertices(col,row,L))
+            self.RectHitbox[col, row] = pygame.draw.polygon(self.surface, self.color[col,row], self.hexagon_vertices[col,row])
         # Update screen:
         pygame.display.update()
 
@@ -104,9 +72,9 @@ class Hexagon(Stage):
     # Calculate the coordinates of the hexagon corresponding to (col,row) coordinates.
     # Takes the length of the side of the hexagons and the position of the (0,0) one as
     # parameters.
-    def hexagon_vertices(self,col,row,side_length):
+    def calculate_hexagon_vertices(self,col,row,side_length):
         
-        grid_topleft = np.array([3,L/2]) # Coordinates for the top-left hexagon north-west vertex
+        grid_topleft = np.array([3,self.L/2]) # Coordinates for the top-left hexagon north-west vertex
         
         width_hex=side_length*np.sqrt(3) # Width of an hexagon
         
@@ -168,25 +136,25 @@ class Hexagon(Stage):
             if self.grid[col, row] == 1:
                 # Check if the conditions for birth are met. 
                 # Updated grid and color are changed accordingly.
-                if alive_neighbours in alive_neighbours_to_survive:
+                if alive_neighbours in self.alive_neighbours_to_survive:
                     updated_cells[col, row] = 1
-                    self.color[col,row] = COLOR_SURVIVED
+                    self.color[col,row] = self.COLOR_SURVIVED
                 else:
                     self.color[col,row] = COLOR_BLACK
                 # Check if the conditions for survival are met. 
                 # Updated grid and color are changed accordingly. 
             else:
-                if alive_neighbours in alive_neighbours_to_be_born:
+                if alive_neighbours in self.alive_neighbours_to_be_born:
                     updated_cells[col, row] = 1
-                    self.color[col,row] = COLOR_JUST_BORN
+                    self.color[col,row] = self.COLOR_JUST_BORN
                 else:
                     self.color[col,row] = COLOR_BLACK
-                # Note that COLOR_SURVIVED and COLOR_JUST_BORN both mean "alive",
+                # Note that self.COLOR_SURVIVED and self.COLOR_JUST_BORN both mean "alive",
                 # but specify the previous state of the cell (alive and dead
                 # respectively).
                 
             # Draw updated hexagons
-            pygame.draw.polygon(self.surface, self.color[col,row], self.hexagon_vertices(col,row,L))
+            pygame.draw.polygon(self.surface, self.color[col,row], self.hexagon_vertices[col, row])
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -206,7 +174,15 @@ class Hexagon(Stage):
                     # watch evolution in detail:
                     self.running = False
                     self.update()
-                    pygame.display.update()                  
+                    pygame.display.update()  
+                elif event.key == pygame.K_DOWN: # Check if down arrow gets pressed down
+                    self.running = False
+                    for col, row in np.ndindex(self.grid.shape):
+                        self.grid[col, row] = 0 # Kill every cell
+                        self.color[col, row] = COLOR_BLACK
+                        pygame.draw.polygon(self.surface, self.color[col,row], self.hexagon_vertices[col, row])
+                    self.update()
+                    pygame.display.update()
             
             if pygame.mouse.get_pressed()[0]: # True if left-click
                 pos = pygame.mouse.get_pos() # Get mouse pointer position
@@ -216,7 +192,7 @@ class Hexagon(Stage):
                         self.grid[col, row] = 1 # Cell becomes alive
                         self.color[col,row] = COLOR_WHITE # Thus, gets white
                         # Draw new hexagon:
-                        pygame.draw.polygon(self.surface, self.color[col,row], self.hexagon_vertices(col,row,L))
+                        pygame.draw.polygon(self.surface, self.color[col,row], self.hexagon_vertices[col, row])
                         # Show it on screen:
                         pygame.display.update()
             elif pygame.mouse.get_pressed()[2]: # True if right-click
@@ -227,7 +203,7 @@ class Hexagon(Stage):
                         self.grid[col, row] = 0 # Cell is killed
                         self.color[col,row] = COLOR_BLACK # Thus, gets black
                         # Draw new hexagon:
-                        pygame.draw.polygon(self.surface, self.color[col,row], self.hexagon_vertices(col,row,L))
+                        pygame.draw.polygon(self.surface, self.color[col,row], self.hexagon_vertices[col, row])
                         # Show it on screen:
                         pygame.display.update()
             # Analogous action that prints number of alive neighbours on terminal.
@@ -247,12 +223,11 @@ class Hexagon(Stage):
             self.handle_events()
             #self.surface.fill(COLOR_GRID)
             if self.running:
+                time.sleep(self.delay)
                 self.update()
 
-            time.sleep(0.001)
-
 # Check this script independetly: (do not uncomment if running main.py)
-#window = pygame.display.set_mode((800, 600))
-#stage = Hexagon(window)
-#stage.run()
+window = pygame.display.set_mode((800, 600))
+stage = Hexagon(window, L = 5.5)
+stage.run()
 
