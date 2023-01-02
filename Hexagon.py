@@ -227,7 +227,7 @@ class Hexagon(Stage):
                 self.update()
 
 # Check this script independetly: (do not uncomment if running main.py)
-window = pygame.display.set_mode((800, 600))
-stage = Hexagon(window, L = 5.5)
-stage.run()
+# window = pygame.display.set_mode((800, 600))
+# stage = Hexagon(window, L = 5.5)
+# stage.run()
 
