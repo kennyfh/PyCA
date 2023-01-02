@@ -1,4 +1,3 @@
-import time
 import pygame
 import numpy as np
 from scipy.spatial import Voronoi
@@ -18,7 +17,7 @@ pygame.init()
 
 # Class for the hexagonal stage:
 class VoronoiGrid(Stage):
-    def __init__(self, surface, L = 25, COLOR_JUST_BORN = (0,255,0), COLOR_SURVIVED = (255,0,0), alive_neighbours_to_be_born = [3],alive_neighbours_to_survive = [2,3], initial_alive_probability = 0):
+    def __init__(self, surface, L = 20, COLOR_JUST_BORN = (0,255,0), COLOR_SURVIVED = (255,0,0), alive_neighbours_to_be_born = [3],alive_neighbours_to_survive = [2,3], initial_alive_probability = 0):
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED, alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
 
@@ -215,17 +214,17 @@ class VoronoiGrid(Stage):
                             print('Vertices labels: {}'.format(self.voronoi_vertices_labels[cell]))
                             print('Neighbours: {}'.format(self.neighbours[cell]))
                             print('Alive neighbours: {}'.format(self.alive_voronoi(cell)))
-    # def run(self):
-    #     # Main loop
-    #     while True:
-    #         self.handle_events()
-    #         #self.surface.fill(COLOR_GRID)
-    #         if self.running:
-    #             # time.sleep(self.delay)
-    #             time.sleep(0.1)
-    #             self.update()            
+#     def run(self):
+#         # Main loop
+#         while True:
+#             self.handle_events()
+#             #self.surface.fill(COLOR_GRID)
+#             if self.running:
+#                 # time.sleep(self.delay)
+#                 time.sleep(0.1)
+#                 self.update()            
 
-# Check this script independetly: (do not uncomment if running main.py)
+# # Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))
 # stage = VoronoiGrid(window)
 # stage.run()

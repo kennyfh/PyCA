@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Dec 27 17:50:44 2022
-
-@author: teoji
-"""
 import numpy as np 
 
 def ordered_vertices(vertices): #vertices is expected to be a list of tuples
