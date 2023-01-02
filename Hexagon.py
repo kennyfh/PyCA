@@ -15,7 +15,7 @@ pygame.init()
 
 # Class for the hexagonal stage:
 class Hexagon(Stage):
-    def __init__(self, surface, L = 2.5, COLOR_JUST_BORN = (0,255,0), COLOR_SURVIVED = (255,0,0), alive_neighbours_to_be_born = [2],alive_neighbours_to_survive = [2], initial_alive_probability = 0):
+    def __init__(self, surface, L = 5, COLOR_JUST_BORN = (0,255,0), COLOR_SURVIVED = (255,0,0), alive_neighbours_to_be_born = [2],alive_neighbours_to_survive = [3,4], initial_alive_probability = 0):
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED, alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
         

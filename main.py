@@ -98,18 +98,20 @@ button3.grid(row=1, column=3,padx=5, pady=10)
 #######
 
 def change_color1() -> None:
-  color = colorchooser.askcolor()[0]
-  # global COLOR_JUST_BORN
-  # COLOR_JUST_BORN = color
-  stage.COLOR_JUST_BORN = color
-  log(f"Hemos cambiado el tipo de celda X con un color{color}")
+    if colorchooser.askcolor()[0] is not None:
+        color = colorchooser.askcolor()[0]
+        # global COLOR_JUST_BORN
+        # COLOR_JUST_BORN = color
+        stage.COLOR_JUST_BORN = color
+        log(f"Newborn cells will be shown in this new color: {color} (RGB)")
 
 def change_color2() -> None:
-  color = colorchooser.askcolor()[0]
-  # global COLOR_SURVIVED
-  # COLOR_SURVIVED = color
-  stage.COLOR_SURVIVED = color
-  log(f"Hemos cambiado el tipo de celda Y con un color{color}")
+    if colorchooser.askcolor()[0] is not None:
+        color = colorchooser.askcolor()[0]
+        # global COLOR_SURVIVED
+        # COLOR_SURVIVED = color
+        stage.COLOR_SURVIVED = color
+        log(f"Survivor cells will be shown in this new color: {color} (RGB)")
 
 color1 = tk.Label(root,text="COLOR_JUST_BORN",font=("Helvetica", 10))
 color1.grid(row=2,column=0, padx=5, pady=5)
@@ -129,7 +131,7 @@ btnc2.grid(row=2, column=3)
 changeL = tk.Label(root,text="Select L:",font=("Helvetica", 10))
 changeL.grid(row=3,column=0,columnspan=1)
 
-scale = tk.Scale(from_=3, to=200, digits = 3,orient=tk.HORIZONTAL,resolution = 0.01)
+scale = tk.Scale(from_=3, to=50, digits = 3,orient=tk.HORIZONTAL,resolution = 0.001)
 scale.grid(row=3,column=1,columnspan=1)
 
 def apply_grid_size() -> None:
