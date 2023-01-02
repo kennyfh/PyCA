@@ -22,7 +22,10 @@ game_surface = pygame.display.set_mode((800,600))
 # Global variables
 # By default we create a hexagon grid
 stage = Hexagon(game_surface)
+stage_st = "HEX" # SQU | VOR
 L = 10 # Init
+COLOR_JUST_BORN = (0,255,0)
+COLOR_SURVIVED = (255,0,0)
 alive_neighbours_to_be_born = [] # Update
 alive_neighbours_to_survive = [] # Update
 initial_alive_probability = 0 # Init
@@ -30,16 +33,19 @@ initial_alive_probability = 0 # Init
 ## Funciones para crear nuevas instancias del 
 # escenario cuando se pulse el botón
 def generate_new_square() -> None:
-  global stage
+  global stage, stage_st
   stage = Square(game_surface)
-  
+  stage_st = "SQU"
+
 def generate_new_hexagon() -> None:
-  global stage
+  global stage, stage_st
   stage = Hexagon(game_surface)
+  stage_st = "HEX"
 
 def generate_new_Voronoi() -> None:
-  global stage
+  global stage, stage_st
   stage = VoronoiGrid(game_surface)
+  stage_st = "VOR"
 
 # Generate Header
 header_label = tk.Label(root, text="Welcome to PyCA", font=("Helvetica", 18))
@@ -90,20 +96,20 @@ button3.grid(row=1, column=3,padx=5, pady=10)
 #######
 # CHANGE COLOR CELLS
 #######
-# COLOR_JUST_BORN = (255,255,255) # Update
-# COLOR_SURVIVED = (255,255,255) # Update
 
 def change_color1() -> None:
   color = colorchooser.askcolor()[0]
+  # global COLOR_JUST_BORN
+  # COLOR_JUST_BORN = color
   stage.COLOR_JUST_BORN = color
   log(f"Hemos cambiado el tipo de celda X con un color{color}")
-  print(color)
 
 def change_color2() -> None:
   color = colorchooser.askcolor()[0]
+  # global COLOR_SURVIVED
+  # COLOR_SURVIVED = color
   stage.COLOR_SURVIVED = color
   log(f"Hemos cambiado el tipo de celda Y con un color{color}")
-  print(color)
 
 color1 = tk.Label(root,text="COLOR_JUST_BORN",font=("Helvetica", 10))
 color1.grid(row=2,column=0, padx=5, pady=5)
@@ -128,7 +134,15 @@ scale.grid(row=3,column=1,columnspan=1)
 
 def apply_grid_size() -> None:
   value = scale.get()
-  # TODO: podemos programar para que en el log aparezca que hemos cambiado los elementos a 0
+  # TODO: AÑADIR LOS COLORES Y RESTO DE PARÁMETROS CUANDO ENTREMOS AQUÍ
+  global stage
+  if stage_st == "HEX":
+    stage = Hexagon(game_surface, L = value)
+  elif stage_st == "SQU":
+    stage = Square(game_surface, L = value)
+  elif stage_st == "VOR":
+    stage = VoronoiGrid(game_surface, L = value)
+  pygame.display.update()
   log(f"L size is now: {value} pixels")
 
 btnL = tk.Button(root, text="Apply Size", command=apply_grid_size)
@@ -155,10 +169,10 @@ def send_rule() -> None:
     alive_neighbours_to_be_born , alive_neighbours_to_survive = parser_rule(msg)
     stage.alive_neighbours_to_be_born = alive_neighbours_to_be_born
     stage.alive_neighbours_to_survive = alive_neighbours_to_survive
-    print(alive_neighbours_to_be_born)
-    print(stage.alive_neighbours_to_be_born)
-    print(alive_neighbours_to_survive)
-    print(stage.alive_neighbours_to_survive)
+    # print(alive_neighbours_to_be_born)
+    # print(stage.alive_neighbours_to_be_born)
+    # print(alive_neighbours_to_survive)
+    # print(stage.alive_neighbours_to_survive)
 
     log(f"The new rule is: {msg}")
   else:
