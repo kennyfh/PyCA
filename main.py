@@ -1,6 +1,7 @@
 import pygame
 import tkinter as tk
 from tkinter import colorchooser
+from typing import Tuple
 import re
 import time
 from square import Square
@@ -14,25 +15,29 @@ root.title('Settings')
 pygame.display.set_caption("PyCA - Display")
 
 # Crear la ventana de Tkinter
-root.geometry("820x450")
+root.geometry("700x450")
 # Crear la superficie de Pygame
 game_surface = pygame.display.set_mode((800,600))
 
-# Crear el Stage
-# TODO Realizarlo en una variable global
-stage = Square(game_surface)
+# Global variables
+# By default we create a hexagon grid
+stage = Hexagon(game_surface)
+L = 10 # Init
+alive_neighbours_to_be_born = [] # Update
+alive_neighbours_to_survive = [] # Update
+initial_alive_probability = 0 # Init
 
 ## Funciones para crear nuevas instancias del 
 # escenario cuando se pulse el botón
-def generate_new_square():
+def generate_new_square() -> None:
   global stage
   stage = Square(game_surface)
   
-def generate_new_hexagon():
+def generate_new_hexagon() -> None:
   global stage
   stage = Hexagon(game_surface)
 
-def generate_new_Voronoi():
+def generate_new_Voronoi() -> None:
   global stage
   stage = VoronoiGrid(game_surface)
 
@@ -59,15 +64,17 @@ scrollbar = tk.Scrollbar(frame, command=log_text.yview)
 scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 log_text.configure(yscrollcommand=scrollbar.set)
 
+
 # Function to append a message to the log
-def log(message):
+def log(message) -> None:
     log_text.insert(tk.END, message + "\n")
 
 log("Welcome to PyCA software!")
 
+#######
+# Stage
+#######
 
-
-# Row 1
 # Creamos un boton para el escenario stage
 button1 = tk.Button(root, text="Square", command=generate_new_square)
 button1.grid(row=1, column=1, padx=5, pady=10)
@@ -80,41 +87,35 @@ button2.grid(row=1, column=2,padx=5, pady=10)
 button3 = tk.Button(root, text="Voronoi", command=generate_new_Voronoi)
 button3.grid(row=1, column=3,padx=5, pady=10)
 
-# Row 3
+#######
+# CHANGE COLOR CELLS
+#######
+# COLOR_JUST_BORN = (255,255,255) # Update
+# COLOR_SURVIVED = (255,255,255) # Update
 
-def change_color1():
-  color = colorchooser.askcolor()
-  # TODO: CREAR UNA FORMA DE MODIFICAR EN STAGE EL COLOR DE ALIVE
+def change_color1() -> None:
+  color = colorchooser.askcolor()[0]
+  stage.COLOR_JUST_BORN = color
+  log(f"Hemos cambiado el tipo de celda X con un color{color}")
   print(color)
 
-def change_color2():
-  color = colorchooser.askcolor()
-  # TODO: CREAR UNA FORMA DE MODIFICAR EN STAGE EL COLOR DE DEAD
+def change_color2() -> None:
+  color = colorchooser.askcolor()[0]
+  stage.COLOR_SURVIVED = color
+  log(f"Hemos cambiado el tipo de celda Y con un color{color}")
   print(color)
 
-def change_color3():
-  color = colorchooser.askcolor()
-  # TODO: CREAR UNA FORMA DE MODIFICAR EN STAGE EL COLOR DE DEAD
-  print(color)  
-
-color1 = tk.Label(root,text="Color1",font=("Helvetica", 10))
+color1 = tk.Label(root,text="COLOR_JUST_BORN",font=("Helvetica", 10))
 color1.grid(row=2,column=0, padx=5, pady=5)
 
 btnc1 = tk.Button(root, text="Change Color", command=change_color1)
 btnc1.grid(row=2, column=1)
 
-color2 = tk.Label(root,text="Color2",font=("Helvetica", 10))
+color2 = tk.Label(root,text="COLOR_SURVIVED",font=("Helvetica", 10))
 color2.grid(row=2,column=2)
 
 btnc2 = tk.Button(root, text="Change Color", command=change_color2)
 btnc2.grid(row=2, column=3)
-
-color3 = tk.Label(root,text="Color3",font=("Helvetica", 10))
-color3.grid(row=2,column=4)
-
-btnc3 = tk.Button(root, text="Change Color", command=change_color3) 
-btnc3.grid(row=2, column=5)
-
 
 #####################
 # L system
@@ -125,7 +126,7 @@ changeL.grid(row=3,column=0,columnspan=1)
 scale = tk.Scale(from_=3, to=200, digits = 3,orient=tk.HORIZONTAL,resolution = 0.01)
 scale.grid(row=3,column=1,columnspan=1)
 
-def apply_grid_size():
+def apply_grid_size() -> None:
   value = scale.get()
   # TODO: podemos programar para que en el log aparezca que hemos cambiado los elementos a 0
   log(f"L size is now: {value} pixels")
@@ -143,40 +144,67 @@ rules.grid(row=4,column=0)
 label7 = tk.Entry(root)
 label7.grid(row=4,column=1, padx=5, pady=15)
 
-def send_rule():
+def send_rule() -> None:
   """
   Send rule to the system
   """
   msg = label7.get()
   if is_rule_valid(msg):
-    # TODO: APLICAR LA REGLA EN NUESTRO STAGE
+    global alive_neighbours_to_be_born
+    global alive_neighbours_to_survive
+    alive_neighbours_to_be_born , alive_neighbours_to_survive = parser_rule(msg)
+    stage.alive_neighbours_to_be_born = alive_neighbours_to_be_born
+    stage.alive_neighbours_to_survive = alive_neighbours_to_survive
+    print(alive_neighbours_to_be_born)
+    print(stage.alive_neighbours_to_be_born)
+    print(alive_neighbours_to_survive)
+    print(stage.alive_neighbours_to_survive)
+
     log(f"The new rule is: {msg}")
   else:
     log(f"The rule {msg} is invalid. Please set a valid rule")
     
 
 def is_rule_valid(rule:str) -> bool:
+  """
+  Check if rule is valid
+
+  Example:
+    is_rule_valid("B3/S23") # True
+    is_rule_valid("B99/S45") # False, in B variable there're duplicate elements
+    is_rule_valid("B19/S43") # False, in S the numbers aren't ordered
+  """
   def is_asc_unique(ls:str) -> bool:
+    """
+    check if string hasn't any duplicates and the values are sorted ascending
+    """
     nums = [int(x) for x in ls]
     # Check if numbers are in ascending order
     for i in range(1,len(nums)):
       if nums[i] < nums[i-1]:
         return False
+    # Check if exist duplicates
     if len(nums) != len(set(nums)):
       return False
     return True
-
+  # If the pattern match with a rule
   if re.match(r"^B([0-9]{1,9})/S([0-9]{1,9})$",rule):
-    print("ENTRAAAAAAAAA")
     # Split the rule
     b,s = rule.split("/")
     b_cond = b[1:]
     s_cond = s[1:]
-    print(b_cond)
-    print(s_cond)
     if is_asc_unique(b_cond) and is_asc_unique(s_cond):
       return True
   return False
+
+def parser_rule(rule:str) -> Tuple[list,list]:
+  """
+  Generate a tuple of list that each list is numbers of neighbours
+  """
+  b,s = rule.split("/")
+  born = [int(x) for x in b if x.isdigit()]
+  surv = [int(x) for x in s if x.isdigit()]
+  return born,surv
   
 
 send_rule = tk.Button(root, text="Set rule", command=send_rule)
