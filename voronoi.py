@@ -33,11 +33,11 @@ COLOR_GRID = (40, 40, 40)
 # Start pygame
 pygame.init()
 
-# Class for the hexagonal stage:
+# Class for the voronoi stage:
 
 
 class VoronoiGrid(Stage):
-    """Initialize the hexagonal stage with the given surface and parameters.
+    """Initialize the voronoi stage with the given surface and parameters.
 
     Args:
         surface (pygame.Surface): The surface on which the stage will be drawn.
