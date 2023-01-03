@@ -60,7 +60,7 @@ class VoronoiGrid(Stage):
                  COLOR_SURVIVED: Tuple[int, int, int] = (255, 0, 0),
                  alive_neighbours_to_be_born: List[int] = [1,2,3,4,5,6,7,8,9],
                  alive_neighbours_to_survive: List[int] = [1,2,3,4,5,6,7,8,9],
-                 initial_alive_probability: int = 0.1) -> None:
+                 initial_alive_probability: int = 0.0) -> None:
         
         self.loading = True
         # Set the surface to draw the stage on
