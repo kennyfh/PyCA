@@ -268,9 +268,7 @@ def is_rule_valid(rule: str) -> bool:
     if re.match(r"^B([0-9]{1,9})/S([0-9]{1,9})$", rule):
         # Split the rule
         b, s = rule.split("/")
-        b_cond = b[1:]
-        s_cond = s[1:]
-        if is_asc_unique(b_cond) and is_asc_unique(s_cond):
+        if is_asc_unique(b[1:]) and is_asc_unique(s[1:]):
             return True
     return False
 
@@ -299,7 +297,16 @@ scale_alive = tk.Scale(from_=0, to=1, digits=3,
 scale_alive.grid(row=5, column=1, columnspan=1)
 
 def apply_alive_probability() -> None:
-    pass
+    value = scale_alive.get()
+    # TODO: AÑADIR LOS COLORES Y RESTO DE PARÁMETROS CUANDO ENTREMOS AQUÍ
+    global stage
+    if stage_st == "HEX":
+        stage = Hexagon(game_surface, initial_alive_probability=value)
+    elif stage_st == "SQU":
+        stage = Square(game_surface, initial_alive_probability=value)
+    elif stage_st == "VOR":
+        stage = VoronoiGrid(game_surface, initial_alive_probability=value)
+    pygame.display.update()
 
 btnL = tk.Button(root, text="Apply prob", command=apply_alive_probability)
 btnL.grid(row=5, column=2)
