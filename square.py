@@ -59,6 +59,12 @@ class Square(Stage):
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED,
                          alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
 
+        # Processing window caption:
+        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
+        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
+        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in square grid'
+        pygame.display.set_caption(caption) 
+            
         # Set the background color
         self.surface.fill(COLOR_GRID)
 
@@ -131,6 +137,13 @@ class Square(Stage):
 
     # Update state of the cellular automata and the screen
     def update(self) -> None:
+        
+        # Processing window caption:
+        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
+        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
+        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in square grid'
+        pygame.display.set_caption(caption) 
+        
         # Initially asume every cell is dead (0)
         updated_cells = np.zeros((self.grid.shape[0], self.grid.shape[1]))
 

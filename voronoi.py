@@ -26,9 +26,13 @@ from pixel_perfect_polygon_hitbox import ordered_vertices, is_in_polygon
 Lx = 800
 Ly = 600
 
+N = 5
+
 COLOR_BLACK = (10, 10, 10)
 COLOR_WHITE = (255, 255, 255)
-COLOR_GRID = (40, 40, 40)
+COLOR_LOAD = (106,13,173)
+COLOR_GRID = (60,60,60)
+
 
 # Start pygame
 pygame.init()
@@ -51,24 +55,50 @@ class VoronoiGrid(Stage):
 
     def __init__(self,
                  surface: pygame.Surface,
-                 L: int = 22,
+                 L: int = 6,
                  COLOR_JUST_BORN: Tuple[int, int, int] = (0, 255, 0),
                  COLOR_SURVIVED: Tuple[int, int, int] = (255, 0, 0),
-                 alive_neighbours_to_be_born: List[int] = [3],
-                 alive_neighbours_to_survive: List[int] = [2, 3],
-                 initial_alive_probability: int = 0) -> None:
+                 alive_neighbours_to_be_born: List[int] = [1,2,3,4,5,6,7,8,9],
+                 alive_neighbours_to_survive: List[int] = [1,2,3,4,5,6,7,8,9],
+                 initial_alive_probability: int = 0.1) -> None:
+        
+        self.loading = True
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED,
                          alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
-
-        # Set the size of the stage
-        self.size = surface.get_size()
-
+        
+        # Processing window caption:
+        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
+        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
+        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in Voronoi grid'
+        pygame.display.set_caption(caption) 
+        
         # Set the size of the grid
         number_of_seeds = np.floor((Lx*Ly/self.L**2)).astype(int)
         points = np.zeros([number_of_seeds, 2])
         points[:, 0] = np.random.randint(0, Lx, size=number_of_seeds)
         points[:, 1] = np.random.randint(0, Ly, size=number_of_seeds)
+        
+        # Set the background color
+        self.surface.fill(COLOR_GRID)
+        # Set the title of the window 
+        pygame.display.update()
+        # Create a font object
+        font = pygame.font.Font(None, 36)        
+        # Render the text
+        text = font.render('LOADING ' + "%0.0e" % number_of_seeds + \
+                           ' VORONOI REGIONS ...', 1, (255, 255, 255))        
+        # Get the size of the text
+        text_rect = text.get_rect()        
+        # Set the position of the text
+        text_rect.center = (Lx // 2, Ly // 2)
+        # Draw the text on the screen
+        self.surface.blit(text, text_rect)
+        # Update the display
+        pygame.display.update()
+        
+        # Set the size of the stage
+        self.size = surface.get_size()
 
         self.number_of_regions = 0
         vor = Voronoi(points)
@@ -101,16 +131,11 @@ class VoronoiGrid(Stage):
                     for i in range(len(vertices)):
                         vertices[i] = tuple(vertices[i])
                     self.voronoi_vertices[cell] = ordered_vertices(vertices)
-                    self.RectHitbox[cell] = pygame.draw.polygon(
-                        self.surface, COLOR_GRID, self.voronoi_vertices[cell], 2)
                     cell = cell + 1
             scipy_label = scipy_label + 1
 
-        self.average_number_of_vertices = np.average(
-            [len(vertex) for vertex in self.voronoi_vertices])
-
         # Update screen:
-        pygame.display.flip()
+        # pygame.display.flip()
 
         # Toggle between all dead and random initial state
         self.initial_alive_probability = initial_alive_probability  # 0 to 1
@@ -120,7 +145,24 @@ class VoronoiGrid(Stage):
 
         # Create and display initial state grid
         self.grid = np.zeros(self.number_of_regions)
+        
+        # Establish square 100x100 pixels^2 sections to classify voronoi regions.
+        # This will make it easier to determine neighbourhood relationship.
+        
+        # Every voronoi region belongs to one or more sections (48 total) of the grid:
+        self.grid_section = np.ndarray((self.number_of_regions), dtype=object)
+        
+        # Every section contains a certain number of voronoi regions
+        self.section_cells = np.ndarray(int(Lx*Ly/N**2), dtype=object)
+        
+        for cell in range(self.number_of_regions): 
+            self.grid_section[cell] = []
+        
+        for section in range(int(Lx*Ly/N**2)): 
+            self.section_cells[section] = []
+        
         for cell in range(self.number_of_regions):
+            
             if np.random.rand() < self.initial_alive_probability:  # Threshold for initial alive state
                 self.grid[cell] = 1  # Tag alive cells with 1
                 self.color[cell] = COLOR_WHITE  # Color them white
@@ -128,28 +170,47 @@ class VoronoiGrid(Stage):
                 self.grid[cell] = 0  # Tag dead cells with 0
                 self.color[cell] = COLOR_BLACK  # Color them white
             # Display on hexagons on screen ans storage their rectangular hitbox:
-            pygame.draw.polygon(
+            self.RectHitbox[cell] = pygame.draw.polygon(
                 self.surface, self.color[cell], self.voronoi_vertices[cell])
             pygame.draw.polygon(self.surface, COLOR_GRID,
-                                self.voronoi_vertices[cell], 2)
-        # Update screen:
-        pygame.display.update()
-
-        # Neighbours for voronoi regions
+                                self.voronoi_vertices[cell], 1)
+            if cell % 10 == 0:
+                pygame.display.update()
+                
+            for vertex in self.voronoi_vertices[cell]:
+                x_section = vertex[0]//N
+                if x_section > (Lx/N)-1:
+                    x_section = (Lx/N)-1
+                if x_section < 0:
+                    x_section = 0   
+                y_section = vertex[1]//N
+                if y_section > (Ly/N)-1:
+                    y_section = (Ly/N)-1
+                if y_section < 0:
+                    y_section = 0
+                index_section = int(y_section*(Lx/N) + x_section)
+                if index_section not in self.grid_section[cell]:
+                    self.grid_section[cell].append(index_section)
+                    self.section_cells[index_section].append(cell)
+        
         self.neighbours = np.ndarray((self.number_of_regions), dtype=object)
         for cell in range(self.number_of_regions):
             self.neighbours[cell] = []
         for cell in range(self.number_of_regions):
-            for vertex_label in self.voronoi_vertices_labels[cell]:
-                for other_cell in range(self.number_of_regions):
-                    if vertex_label in self.voronoi_vertices_labels[other_cell] and \
-                            other_cell not in self.neighbours[cell] and \
-                            cell not in self.neighbours[other_cell] and other_cell != cell:
-                        self.neighbours[cell].append(other_cell)
-                        self.neighbours[other_cell].append(cell)
+            for section in self.grid_section[cell]:
+                for other_cell in self.section_cells[section]:
+                    for vertex_label in self.voronoi_vertices_labels[cell]:
+                        if vertex_label in self.voronoi_vertices_labels[other_cell] and \
+                                other_cell not in self.neighbours[cell] and \
+                                cell not in self.neighbours[other_cell] and other_cell != cell:
+                            self.neighbours[cell].append(other_cell)
+                            self.neighbours[other_cell].append(cell)
+                            
 
         # Set the running flag to False
         self.running = False
+        
+        self.loading = False
 
     # Function to calculate the number of alive neighbours
     def alive_voronoi(self, cell: int) -> int:
@@ -171,6 +232,12 @@ class VoronoiGrid(Stage):
         """
          Update state of the cellular automata and the screen
         """
+        # Processing window caption:
+        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
+        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
+        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in Voronoi grid'
+        pygame.display.set_caption(caption) 
+        
         # Initially asume every cell is dead (0)
         updated_cells = np.zeros(self.number_of_regions)
 
@@ -202,7 +269,7 @@ class VoronoiGrid(Stage):
             pygame.draw.polygon(
                 self.surface, self.color[cell], self.voronoi_vertices[cell])
             pygame.draw.polygon(self.surface, COLOR_GRID,
-                                self.voronoi_vertices[cell], 2)
+                                self.voronoi_vertices[cell], 1)
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -210,11 +277,12 @@ class VoronoiGrid(Stage):
 
     # Handle pygame events: mainly user instructions
     def handle_events(self) -> None:
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
-            elif event.type == pygame.KEYDOWN:  # Check if any key gets pressed down
+            elif event.type == pygame.KEYDOWN and not self.loading:  # Check if any key gets pressed down
                 if event.key == pygame.K_SPACE:  # Check if spacebar gets pressed down
                     self.running = not self.running  # Pause and resume button
                 elif event.key == pygame.K_RIGHT:  # Check if right arrow gets pressed down
@@ -245,7 +313,7 @@ class VoronoiGrid(Stage):
                             pygame.draw.polygon(
                                 self.surface, self.color[cell], self.voronoi_vertices[cell])
                             pygame.draw.polygon(
-                                self.surface, COLOR_GRID, self.voronoi_vertices[cell], 2)
+                                self.surface, COLOR_GRID, self.voronoi_vertices[cell], 1)
                             # Show it on screen:
                             pygame.display.update()
             elif pygame.mouse.get_pressed()[2]:  # True if right-click
@@ -260,7 +328,7 @@ class VoronoiGrid(Stage):
                             pygame.draw.polygon(
                                 self.surface, self.color[cell], self.voronoi_vertices[cell])
                             pygame.draw.polygon(
-                                self.surface, COLOR_GRID, self.voronoi_vertices[cell], 2)
+                                self.surface, COLOR_GRID, self.voronoi_vertices[cell], 1)
                             # Show it on screen:
                             pygame.display.update()
             # Analogous action that prints number of alive neighbours on terminal.
@@ -275,18 +343,16 @@ class VoronoiGrid(Stage):
                                 print('This cell {} is alive'.format(cell))
                             else:
                                 print('This cell {} is dead'.format(cell))
-                            print('Alive neighbours: {}'.format(
-                                self.alive_voronoi(cell)))
-
-    def run(self) -> None:
-        # Main loop
-        while True:
-            self.handle_events()
-            # self.surface.fill(COLOR_GRID)
-            if self.running:
-                # time.sleep(self.delay)
-                time.sleep(0.1)
-                self.update()
+                            print('Alive neighbours: {}'.format(self.alive_voronoi(cell)))
+                            
+#     def run(self) -> None:
+#         # Main loop
+#         while True:
+#             self.handle_events()
+#             # self.surface.fill(COLOR_GRID)
+#             if self.running:
+#                 # time.sleep(self.delay)
+#                 self.update()
 
 # # Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))
