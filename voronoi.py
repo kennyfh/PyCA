@@ -192,6 +192,7 @@ class VoronoiGrid(Stage):
                 if index_section not in self.grid_section[cell]:
                     self.grid_section[cell].append(index_section)
                     self.section_cells[index_section].append(cell)
+        pygame.display.update()
         
         self.neighbours = np.ndarray((self.number_of_regions), dtype=object)
         for cell in range(self.number_of_regions):
