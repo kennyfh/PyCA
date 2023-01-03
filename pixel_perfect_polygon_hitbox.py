@@ -1,7 +1,35 @@
-import numpy as np 
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------------
+# Module: Pixel Perfect Polygon Hitbox
+# Created By  : TEODORO JIMÉNEZ LEPE
+#               KENNY JESÚS FLORES HUAMÁN
+# version ='1.0'
+# ---------------------------------------------------------------------------
+# This file contains a functions to generate polygon hitbox
+# ---------------------------------------------------------------------------
 
-def ordered_vertices(vertices): #vertices is expected to be a list of tuples
-    
+# IMPORTS
+
+# Third-party imports
+import numpy as np
+from typing import List,Tuple
+
+
+
+
+def ordered_vertices(vertices: List[Tuple[float, float]]) -> List[Tuple[float, float]]:
+    """
+    Given a list of vertices in any order, this function returns the vertices in
+    a clockwise order.
+
+    Args:
+        vertices (list[tuple[float,float]]): List of vertices to be sorted in clockwise order.
+
+    Returns:
+        list[tuple[float,float]]: List of sorted vertices in clockwise order.
+
+"""
     angle = np.zeros([1,len(vertices)])
 
     center_x = np.average(list(zip(*vertices))[0])
@@ -33,8 +61,23 @@ def ordered_vertices(vertices): #vertices is expected to be a list of tuples
     #Z = [x for _, x in sorted(zip(Y, X), key=lambda pair: pair[0])]
     return ordered_vertices #list of tuples
 
-def is_in_polygon(point,ordered_vertices):
-    
+def is_in_polygon(point: Tuple[float, float], ordered_vertices: List[Tuple[float, float]]) -> bool:
+    """
+    Check if the given `point` is inside the polygon defined by `ordered_vertices`.
+
+    Args:
+    - point: A tuple of integers representing the x and y coordinates of the point.
+    - ordered_vertices: A list of tuples of integers representing the vertices of the polygon, in clockwise order.
+
+    Returns:
+    - A boolean indicating if the point is inside the polygon or not.
+
+    Example:
+    >>> is_in_polygon((0, 0), [(0, 0), (0, 1), (1, 1), (1, 0)])
+    True
+    >>> is_in_polygon((2, 2), [(0, 0), (0, 1), (1, 1), (1, 0)])
+    False
+    """
     positive_cross_products = 0 
     
     for i in range(len(ordered_vertices)):

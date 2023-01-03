@@ -1,11 +1,19 @@
-"""
-Clase padre donde se van a crear los 3 escenarios: Cuadrático, Hexagonal y Voronoi
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------------
+# Module: Stage
+# Created By  : TEODORO JIMÉNEZ LEPE
+#               KENNY JESÚS FLORES HUAMÁN
+# version ='1.0'
+# ---------------------------------------------------------------------------
+# Parent class where the 3 scenarios will be created: Quadratic, Hexagonal and Voronoi
+# ---------------------------------------------------------------------------
+
 COLOR_BLACK = (10, 10, 10)
 COLOR_WHITE = (255, 255, 255)
-COLOR_RED=(255,0,0)
-COLOR_GREEN=(0,255,0)
-COLOR_BLUE=(0,0,255)
+COLOR_RED = (255, 0, 0)
+COLOR_GREEN = (0, 255, 0)
+COLOR_BLUE = (0, 0, 255)
 
 COLOR_GRID = (40, 40, 40)
 
@@ -13,7 +21,7 @@ COLOR_GRID = (40, 40, 40)
 # EVANGELION_PURPLE = (157,68,199)
 
 ################################################################################################################################################
-# Parameters that should be controled by the user through tkinter interface: 
+# Parameters that should be controled by the user through tkinter interface:
 ################################################################################################################################################
 
 # Customize birth and survival colors!
@@ -37,7 +45,20 @@ Ly = 600
 
 
 class Stage:
-    def __init__(self, surface, L = 10, COLOR_JUST_BORN = (255,255,255), COLOR_SURVIVED = (255,255,255),alive_neighbours_to_be_born = [3],alive_neighbours_to_survive = [2,3], initial_alive_probability = 0):
+    """
+    A base class for generating and visualizing cellular automata stages.
+
+    Args:
+        surface (pygame.Surface): The surface on which the stage will be drawn.
+        L (int, optional): The size of the cells in the stage. Default is 10.
+        COLOR_JUST_BORN (Tuple[int, int, int], optional): The color of cells that are born in a given step. Default is (255, 255, 255).
+        COLOR_SURVIVED (Tuple[int, int, int], optional): The color of cells that survive to the next step. Default is (255, 255, 255).
+        alive_neighbours_to_be_born (List[int], optional): A list of the number of alive neighbors required for a cell to be born. Default is [3].
+        alive_neighbours_to_survive (List[int], optional): A list of the number of alive neighbors required for a cell to survive. Default is [2, 3].
+        initial_alive_probability (float, optional): The probability that a cell will be initially alive. Default is 0.
+    """
+
+    def __init__(self, surface, L=10, COLOR_JUST_BORN=(255, 255, 255), COLOR_SURVIVED=(255, 255, 255), alive_neighbours_to_be_born=[3], alive_neighbours_to_survive=[2, 3], initial_alive_probability=0):
         self.surface = surface
         self.L = L
         self.COLOR_JUST_BORN = COLOR_JUST_BORN
