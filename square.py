@@ -48,12 +48,12 @@ class Square(Stage):
 
     def __init__(self,
                  surface: pygame.Surface,
-                 L: int = 10,
+                 L: int = 20.5,
                  COLOR_JUST_BORN: Tuple[int, int, int] = (0, 255, 0),
                  COLOR_SURVIVED: Tuple[int, int, int] = (255, 0, 0),
                  alive_neighbours_to_be_born: List[int] = [3],
                  alive_neighbours_to_survive: List[int] = [2, 3],
-                 initial_alive_probability: float = 0) -> None:
+                 initial_alive_probability: float = 0.03) -> None:
 
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED,
@@ -99,8 +99,7 @@ class Square(Stage):
                 self.grid[col, row] = 0  # Tag dead cells with 0
                 self.color[col, row] = COLOR_BLACK  # Color them white
             # Display on hexagons on screen ans storage their rectangular hitbox:
-                self.RectHitbox[col, row] = pygame.draw.rect(
-                    self.surface, self.color[col, row], (col * L, row * L, L - 1, L - 1))
+            self.RectHitbox[col, row] = pygame.draw.rect(self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
         # Update screen:
         pygame.display.update()
 
@@ -252,6 +251,6 @@ class Square(Stage):
                 self.update()
 
 # Check this script independetly: (do not uncomment if running main.py)
-# window = pygame.display.set_mode((800, 600))
-# stage = Square(window)
-# stage.run()
+window = pygame.display.set_mode((800, 600))
+stage = Square(window)
+stage.run()
