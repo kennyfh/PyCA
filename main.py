@@ -47,9 +47,9 @@ COLOR_SURVIVED = (255, 0, 0)
 alive_neighbours_to_be_born = []  # Update
 alive_neighbours_to_survive = []  # Update
 initial_alive_probability = 0  # Init
+frame_rate = 30
 
 # Generate a new Stage instance
-
 
 def generate_new_square() -> None:
     """
@@ -94,7 +94,7 @@ label1.grid(row=1, column=0)
 #####
 
 frame = tk.Frame(root)
-frame.grid(row=5, column=0, columnspan=4, sticky="we", padx=10, pady=10)
+frame.grid(row=7, column=0, columnspan=4, sticky="we", padx=10, pady=10)
 
 # Create a Text widget to display the log
 log_text = tk.Text(frame)
@@ -288,13 +288,60 @@ def parser_rule(rule: str) -> Tuple[list, list]:
 send_rule = tk.Button(root, text="Set rule", command=send_rule)
 send_rule.grid(row=4, column=2)
 
+########
+# Alive probability
+########
+alive = tk.Label(root, text="Alive probability:", font=("Helvetica", 10))
+alive.grid(row=5, column=0, columnspan=1)
 
+scale_alive = tk.Scale(from_=0, to=1, digits=3,
+                 orient=tk.HORIZONTAL, resolution=0.001)
+scale_alive.grid(row=5, column=1, columnspan=1)
+
+def apply_alive_probability() -> None:
+    pass
+
+btnL = tk.Button(root, text="Apply prob", command=apply_alive_probability)
+btnL.grid(row=5, column=2)
+
+########
+# TIME
+########
+time_label = tk.Label(root, text="Time of loop:", font=("Helvetica", 10))
+time_label.grid(row=6, column=0, columnspan=1)
+
+scale_alive = tk.Scale(from_=5, to=120, digits=3,
+                 orient=tk.HORIZONTAL, resolution=0.001)
+scale_alive.grid(row=6, column=1, columnspan=1)
+
+def apply_time() -> None:
+    global frame_rate
+    frame_rate = scale_alive.get()
+
+btnL = tk.Button(root, text="Change time", command=apply_time)
+btnL.grid(row=6, column=2)
+
+
+###########
 # Main Loop
+###########
+
+# Create a Clock object to control the frame rate
+clock = pygame.time.Clock()
+
 while True:
     # Update the Stage (Square, Hexagon, Voronoi)
     stage.handle_events()
     if stage.running:
         stage.update()
         pygame.display.update()
-    time.sleep(0.001)
+
+    # Limit the frame rate to the desired value
+    clock.tick(frame_rate)
+
+    # Update the Tkinter interface
     root.update()
+
+
+
+
