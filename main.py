@@ -21,7 +21,7 @@ from tkinter import colorchooser
 from typing import Tuple
 
 # Own local imports
-from Hexagon import Hexagon
+from hexagon import Hexagon
 from square import Square
 from voronoi import VoronoiGrid
 
