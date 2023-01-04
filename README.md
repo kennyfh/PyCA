@@ -1,6 +1,6 @@
 # PyCA: Cellular automaton in Python
 
-The goal was develop an open source software to recreate cellular automaton on differents meshes  (square, hex, voronoi), widely studied models, such as [Game of Life](https://web.stanford.edu/class/sts145/Library/life.pdf). For this purpose, we have decided to choose the Python programming language, because of its numerous libraries.
+The goal was to develope an open source software to recreate cellular automaton on different meshes (square, hex, voronoi). We wanted to simulate widely studied models, such as [Game of Life](https://web.stanford.edu/class/sts145/Library/life.pdf). For this purpose, we have decided to choose the Python programming language, because of its numerous libraries.
 
 ## Getting Started
 
