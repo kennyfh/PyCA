@@ -48,12 +48,12 @@ class Square(Stage):
 
     def __init__(self,
                  surface: pygame.Surface,
-                 L: int = 20.5,
+                 L: int = 10,
                  COLOR_JUST_BORN: Tuple[int, int, int] = (0, 255, 0),
                  COLOR_SURVIVED: Tuple[int, int, int] = (255, 0, 0),
                  alive_neighbours_to_be_born: List[int] = [3],
                  alive_neighbours_to_survive: List[int] = [2, 3],
-                 initial_alive_probability: float = 0.03) -> None:
+                 initial_alive_probability: float = 0.0) -> None:
 
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED,
@@ -200,7 +200,7 @@ class Square(Stage):
                         self.color[col, row] = COLOR_BLACK
                         pygame.draw.rect(
                             self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
-                    self.update()
+                    # self.update()
                     pygame.display.update()
 
             if pygame.mouse.get_pressed()[0]:  # True if left-click
@@ -241,16 +241,16 @@ class Square(Stage):
                         print('Alive neighbours: {}'.format(
                             self.alive_square(self.grid, col, row)))
 
-    def run(self) -> None:
-        # Main loop
-        while True:
-            self.handle_events()
-            # self.surface.fill(COLOR_GRID)
-            if self.running:
-                time.sleep(0.01)
-                self.update()
+    # def run(self) -> None:
+    #     # Main loop
+    #     while True:
+    #         self.handle_events()
+    #         # self.surface.fill(COLOR_GRID)
+    #         if self.running:
+    #             time.sleep(0.01)
+    #             self.update()
 
 # Check this script independetly: (do not uncomment if running main.py)
-window = pygame.display.set_mode((800, 600))
-stage = Square(window)
-stage.run()
+# window = pygame.display.set_mode((800, 600))
+# stage = Square(window)
+# stage.run()

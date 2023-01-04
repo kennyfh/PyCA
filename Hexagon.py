@@ -266,7 +266,7 @@ class Hexagon(Stage):
                         self.color[col, row] = COLOR_BLACK
                         pygame.draw.polygon(
                             self.surface, self.color[col, row], self.hexagon_vertices[col, row])
-                    self.update()
+                    # self.update()
                     pygame.display.update()
 
             if pygame.mouse.get_pressed()[0]:  # True if left-click
