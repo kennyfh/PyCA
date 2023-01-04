@@ -241,14 +241,14 @@ class Square(Stage):
                         print('Alive neighbours: {}'.format(
                             self.alive_square(self.grid, col, row)))
 
-    # def run(self) -> None:
-    #     # Main loop
-    #     while True:
-    #         self.handle_events()
-    #         # self.surface.fill(COLOR_GRID)
-    #         if self.running:
-    #             time.sleep(0.01)
-    #             self.update()
+    def run(self) -> None:
+        # Main loop
+        while True:
+            self.handle_events()
+            # self.surface.fill(COLOR_GRID)
+            if self.running:
+                time.sleep(0.01)
+                self.update()
 
 # Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))

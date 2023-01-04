@@ -12,6 +12,7 @@
 # IMPORTS
 # Standard library imports
 import re
+import numpy as np
 
 # Third-party imports
 import pygame
@@ -86,7 +87,7 @@ header_label = tk.Label(root, text="Welcome to PyCA", font=("Helvetica", 18))
 header_label.grid(row=0, column=1, columnspan=2,
                   pady=20, padx=20, sticky="nsew")
 
-label1 = tk.Label(root, text="Stage:", font=("Helvetica", 10))
+label1 = tk.Label(root, text="Generate default new stage:", font=("Helvetica", 10))
 label1.grid(row=1, column=0)
 
 #####
@@ -112,6 +113,10 @@ def log(message) -> None:
       Appends a message to the log Text widget.
     """
     log_text.insert(tk.END, message + "\n")
+    # Scroll to the end of the widget
+    log_text.see(tk.END)
+    # Update the widget
+    log_text.update()
 
 
 log("Welcome to PyCA software!")
@@ -165,62 +170,78 @@ def change_color2() -> None:
             f"Survivor cells will be shown in this new color: {color} (RGB)")
 
 
-color1 = tk.Label(root, text="COLOR_JUST_BORN", font=("Helvetica", 10))
+color1 = tk.Label(root, text="Newborn cells color:", font=("Helvetica", 10))
 color1.grid(row=2, column=0, padx=5, pady=5)
 
 btnc1 = tk.Button(root, text="Change Color", command=change_color1)
 btnc1.grid(row=2, column=1)
 
-color2 = tk.Label(root, text="COLOR_SURVIVED", font=("Helvetica", 10))
+color2 = tk.Label(root, text="Survivor cells color:", font=("Helvetica", 10))
 color2.grid(row=2, column=2)
 
 btnc2 = tk.Button(root, text="Change Color", command=change_color2)
 btnc2.grid(row=2, column=3)
 
 #####################
+# Function that applies fps, size, initial_alife_probability
+# and rule changes all at once
+#####################
+def apply_changes() -> None:
+    global stage
+    global frame_rate
+    frame_rate = scale_time.get()
+    
+    value = scale_alive.get()
+    size = scale.get()
+    # TODO: AÑADIR LOS COLORES Y RESTO DE PARÁMETROS CUANDO ENTREMOS AQUÍ
+    if stage_st == "HEX":
+        stage = Hexagon(game_surface, initial_alive_probability=value/100, L=size)
+    elif stage_st == "SQU":
+        stage = Square(game_surface, initial_alive_probability=value/100, L=size)
+    elif stage_st == "VOR":
+        stage = VoronoiGrid(game_surface, initial_alive_probability=value/100, L=size)
+    
+    msg = label7.get()
+    if is_rule_valid(msg):
+        global alive_neighbours_to_be_born
+        global alive_neighbours_to_survive
+        alive_neighbours_to_be_born, alive_neighbours_to_survive = parser_rule(
+            msg)
+        stage.alive_neighbours_to_be_born = alive_neighbours_to_be_born
+        stage.alive_neighbours_to_survive = alive_neighbours_to_survive
+    
+    stage.update()
+    pygame.display.update()
+
+#####################
 # L system
 #####################
-changeL = tk.Label(root, text="Select L:", font=("Helvetica", 10))
+
+changeL = tk.Label(root, text="Cell size:", font=("Helvetica", 10))
 changeL.grid(row=3, column=0, columnspan=1)
 
 scale = tk.Scale(from_=3, to=50, digits=3,
                  orient=tk.HORIZONTAL, resolution=0.001)
 scale.grid(row=3, column=1, columnspan=1)
 
-
-def apply_grid_size() -> None:
-    """
-    Set the global stage to a new instance of the appropriate class,
-    using the new grid size value
-    """
-    value = scale.get()
-    # TODO: AÑADIR LOS COLORES Y RESTO DE PARÁMETROS CUANDO ENTREMOS AQUÍ
-    global stage
-    if stage_st == "HEX":
-        stage = Hexagon(game_surface, L=value)
-    elif stage_st == "SQU":
-        stage = Square(game_surface, L=value)
-    elif stage_st == "VOR":
-        stage = VoronoiGrid(game_surface, L=value)
-    pygame.display.update()
-    log(f"L size is now: {value} pixels")
-
-
-btnL = tk.Button(root, text="Apply Size", command=apply_grid_size)
+btnL = tk.Button(root, text="Set Size", command=apply_changes)
 btnL.grid(row=3, column=2)
 
 #######
 # RULES
 #######
 
-rules = tk.Label(root, text="Rules", font=("Helvetica", 10))
+rules = tk.Label(root, text="Create custom rule (B.../S...):", font=("Helvetica", 10))
 rules.grid(row=4, column=0)
+example_rules = ["B2/S2","B3/S23 (Original Game of Life!)","B23/S (no possible survivors!)", \
+                 "B0123456789/S0123456789 (infinite growth and survival!)", "B123/S34","B0/S24" \
+                ,"B58/S13","B347/S126","B1/S0 (only isolated cells survive)","B2/S345"]
 
 label7 = tk.Entry(root)
 label7.grid(row=4, column=1, padx=5, pady=15)
 
 
-def send_rule() -> None:
+def send_selected_rule() -> None:
     """
     Send rule to the system
     """
@@ -240,6 +261,7 @@ def send_rule() -> None:
         log(f"The new rule is: {msg}")
     else:
         log(f"The rule {msg} is invalid. Please set a valid rule")
+        log("Example of valid rule: " + example_rules[np.random.randint(len(example_rules))])
 
 
 def is_rule_valid(rule: str) -> bool:
@@ -265,10 +287,15 @@ def is_rule_valid(rule: str) -> bool:
             return False
         return True
     # If the pattern match with a rule
-    if re.match(r"^B([0-9]{1,9})/S([0-9]{1,9})$", rule):
+    if re.match(r"^B([0-9]{1,10})/S([0-9]{1,10})$", rule) \
+        or re.match(r"^B([0-9]{1,10})/S$", rule) or \
+        re.match(r"^B/S([0-9]{1,10})$", rule) or rule == "B/S":
         # Split the rule
         b, s = rule.split("/")
         if is_asc_unique(b[1:]) and is_asc_unique(s[1:]):
+            return True
+        elif (is_asc_unique(b[1:]) and s == "S") or (b=="B" and is_asc_unique(s[1:])) \
+            or (rule == "B/S"):
             return True
     return False
 
@@ -283,40 +310,26 @@ def parser_rule(rule: str) -> Tuple[list, list]:
     return born, surv
 
 
-send_rule = tk.Button(root, text="Set rule", command=send_rule)
+send_rule = tk.Button(root, text="Set Rule", command=send_selected_rule)
 send_rule.grid(row=4, column=2)
 
 ########
 # Alive probability
 ########
-alive = tk.Label(root, text="Alive probability:", font=("Helvetica", 10))
+alive = tk.Label(root, text="Initial alive cells (%):", font=("Helvetica", 10))
 alive.grid(row=5, column=0, columnspan=1)
 
-scale_alive = tk.Scale(from_=0.00, to=1.00, digits=3,
+scale_alive = tk.Scale(from_=0, to=100, digits=1,
                        orient=tk.HORIZONTAL, resolution=0.01)
 scale_alive.grid(row=5, column=1, columnspan=1)
 
-
-def apply_alive_probability() -> None:
-    value = scale_alive.get()
-    # TODO: AÑADIR LOS COLORES Y RESTO DE PARÁMETROS CUANDO ENTREMOS AQUÍ
-    global stage
-    if stage_st == "HEX":
-        stage = Hexagon(game_surface, initial_alive_probability=value)
-    elif stage_st == "SQU":
-        stage = Square(game_surface, initial_alive_probability=value)
-    elif stage_st == "VOR":
-        stage = VoronoiGrid(game_surface, initial_alive_probability=value)
-    pygame.display.update()
-
-
-btnL = tk.Button(root, text="Apply prob", command=apply_alive_probability)
+btnL = tk.Button(root, text="Set %", command=apply_changes)
 btnL.grid(row=5, column=2)
 
 ########
 # TIME
 ########
-time_label = tk.Label(root, text="Time of loop:", font=("Helvetica", 10))
+time_label = tk.Label(root, text="Frames per second:", font=("Helvetica", 10))
 time_label.grid(row=6, column=0, columnspan=1)
 
 scale_time = tk.Scale(from_=5, to=120, digits=3,
@@ -328,8 +341,7 @@ def apply_time() -> None:
     global frame_rate
     frame_rate = scale_time.get()
 
-
-btnL = tk.Button(root, text="Change time", command=apply_time)
+btnL = tk.Button(root, text="Set FPS", command=apply_time)
 btnL.grid(row=6, column=2)
 
 

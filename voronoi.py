@@ -346,14 +346,14 @@ class VoronoiGrid(Stage):
                                 print('This cell {} is dead'.format(cell))
                             print('Alive neighbours: {}'.format(self.alive_voronoi(cell)))
                             
-#     def run(self) -> None:
-#         # Main loop
-#         while True:
-#             self.handle_events()
-#             # self.surface.fill(COLOR_GRID)
-#             if self.running:
-#                 # time.sleep(self.delay)
-#                 self.update()
+    def run(self) -> None:
+        # Main loop
+        while True:
+            self.handle_events()
+            # self.surface.fill(COLOR_GRID)
+            if self.running:
+                # time.sleep(self.delay)
+                self.update()
 
 # # Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))
