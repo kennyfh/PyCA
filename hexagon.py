@@ -193,13 +193,20 @@ class Hexagon(Stage):
         if y % 2 == 0:
             alive_neighbours = cell[x_pre, y] + cell[x_post, y]   \
                 + cell[x_pre, y_pre] + cell[x, y_pre] \
-                + cell[x_pre, y_post] + cell[x, y_post]
+                + cell[x_pre, y_post] + cell[x, y_post] #+ cell[x,y]
         else:
             alive_neighbours = cell[x_pre, y] + cell[x_post, y]   \
                 + cell[x, y_pre] + cell[x_post, y_pre] \
-                + cell[x, y_post] + cell[x_post, y_post]
+                + cell[x, y_post] + cell[x_post, y_post] #+ cell[x,y]
 
         return alive_neighbours
+    
+    def change_caption(self) -> None: 
+        # Processing window caption:
+        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
+        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
+        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in hexagonal grid'
+        pygame.display.set_caption(caption)
 
     # Update state of the cellular automata and the screen
     def update(self) -> None:

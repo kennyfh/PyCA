@@ -134,6 +134,13 @@ class Square(Stage):
 
         return alive_neighbours
 
+    def change_caption(self) -> None:
+        # Processing window caption:
+        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
+        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
+        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in square grid'
+        pygame.display.set_caption(caption) 
+        
     # Update state of the cellular automata and the screen
     def update(self) -> None:
         

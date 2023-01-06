@@ -210,9 +210,8 @@ def apply_changes() -> None:
         stage.alive_neighbours_to_be_born = alive_neighbours_to_be_born
         stage.alive_neighbours_to_survive = alive_neighbours_to_survive
     
-    stage.update()
+    stage.change_caption()
     pygame.display.update()
-
 #####################
 # L system
 #####################
@@ -262,7 +261,7 @@ def send_selected_rule() -> None:
     else:
         log(f"The rule {msg} is invalid. Please set a valid rule")
         log("Example of valid rule: " + example_rules[np.random.randint(len(example_rules))])
-
+    stage.change_caption()
 
 def is_rule_valid(rule: str) -> bool:
     """
