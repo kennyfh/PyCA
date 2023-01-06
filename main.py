@@ -147,8 +147,8 @@ def change_color1() -> None:
      Opens a color chooser window and updates the
      COLOR_JUST_BORN global variable with the chosen color.
     """
-    if colorchooser.askcolor()[0] is not None:
-        color = colorchooser.askcolor()[0]
+    color = colorchooser.askcolor()[0]
+    if color is not None:
         # global COLOR_JUST_BORN
         # COLOR_JUST_BORN = color
         stage.COLOR_JUST_BORN = color
@@ -161,8 +161,8 @@ def change_color2() -> None:
        Opens a color chooser window and updates the
        COLOR_JUST_SURVIVED global variable with the chosen color.
     """
-    if colorchooser.askcolor()[0] is not None:
-        color = colorchooser.askcolor()[0]
+    color = colorchooser.askcolor()[0]
+    if color is not None:
         # global COLOR_SURVIVED
         # COLOR_SURVIVED = color
         stage.COLOR_SURVIVED = color
