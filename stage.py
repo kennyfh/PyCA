@@ -75,3 +75,6 @@ class Stage:
 
     def run(self):
         pass
+    
+    def show_controls(self):
+        pass

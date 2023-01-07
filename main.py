@@ -80,7 +80,22 @@ def generate_new_Voronoi() -> None:
     scale.set(6)
     stage = VoronoiGrid(game_surface)
     stage_st = "VOR"
+    
+#################
+# Show controls
+#################
 
+def show_controls() -> None:
+    """
+      Show game controls on message box
+    """
+    tk.messagebox.showinfo('Controls',"LEFT CLICK: Bring selected cell to life \n" + 
+                                    "RIGHT CLICK: Kill selected cell \n" +                                     
+                                    "MOUSE WHEEL CLICK: Show info about selected cell \n \n" +
+                                    "SPACE BAR: Start/stop simulation \n" +
+                                    "RIGHT ARROW: Simulate one step \n" + 
+                                    "DOWN ARROW: Kill all cells \n \n" + 
+                                    "S: Start/stop recording screen")
 #################
 # Generate Header
 #################
@@ -129,17 +144,22 @@ log("Welcome to PyCA software!")
 #######
 
 # Creamos un boton para el escenario stage
-button1 = tk.Button(root, text="Square", command=generate_new_square)
+button1 = tk.Button(root, text="Square", command=generate_new_square, bg = "orange")
 button1.grid(row=1, column=1, padx=5, pady=10)
 
 # Creamos un boton para el escenario stage
-button2 = tk.Button(root, text="Hexagon", command=generate_new_hexagon)
+button2 = tk.Button(root, text="Hexagon", command=generate_new_hexagon, bg = "orange")
 button2.grid(row=1, column=2, padx=5, pady=10)
 
 # Creamos un boton para el escenario stage
-button3 = tk.Button(root, text="Voronoi", command=generate_new_Voronoi)
+button3 = tk.Button(root, text="Voronoi", command=generate_new_Voronoi, bg = "orange")
 button3.grid(row=1, column=3, padx=5, pady=10)
 
+#######
+# Controls
+#######
+button_controls = tk.Button(root, text="Show controls", command=show_controls, bg = "pink")
+button_controls.grid(row=3, column=3, padx=5, pady=10)
 #######
 # CHANGE COLOR CELLS
 #######
@@ -265,7 +285,7 @@ def send_selected_rule() -> None:
     else:
         log(f"The rule {msg} is invalid. Please set a valid rule")
         log("Example of valid rule: " + example_rules[np.random.randint(len(example_rules))])
-    stage.change_caption()
+    stage.change_caption()                                        
     
 
 def is_rule_valid(rule: str) -> bool:
