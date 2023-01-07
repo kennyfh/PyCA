@@ -12,6 +12,7 @@
 # IMPORTS
 # Standard library imports
 import time
+import os 
 
 # Third-party imports
 import pygame
@@ -62,12 +63,6 @@ class Hexagon(Stage):
         # Set the background color
         self.surface.fill(COLOR_GRID)
         
-        # Processing window caption:
-        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
-        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in hexagonal grid'
-        pygame.display.set_caption(caption) 
-        
         # Set the size of the stage
         self.size = surface.get_size()
 
@@ -112,6 +107,12 @@ class Hexagon(Stage):
 
         # Set the running flag to False
         self.running = False
+        
+        # Set the recording flag to False
+        self.recording = False
+        
+        # Processing window caption:
+        self.change_caption()
 
     # Calculate the coordinates of the hexagon corresponding to (col,row) coordinates.
     # Takes the length of the side of the hexagons and the position of the (0,0) one as
@@ -205,16 +206,18 @@ class Hexagon(Stage):
         # Processing window caption:
         birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
         survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in hexagonal grid'
+        self.rule = 'B'+"".join(birth_string)+'S'+"".join(survival_string)
+        if self.recording:
+            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+" "+'in hexagonal grid (RECORDING SCREEN)' 
+        else:
+            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+" "+'in hexagonal grid' 
+            
         pygame.display.set_caption(caption)
 
     # Update state of the cellular automata and the screen
     def update(self) -> None:
         # Processing window caption:
-        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
-        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in hexagonal grid'
-        pygame.display.set_caption(caption) 
+        self.change_caption()
         
         # Initially asume every cell is dead (0)
         updated_cells = np.zeros((self.grid.shape[0], self.grid.shape[1]))
@@ -246,6 +249,14 @@ class Hexagon(Stage):
             # Draw updated hexagons
             pygame.draw.polygon(
                 self.surface, self.color[col, row], self.hexagon_vertices[col, row])
+        
+        # Save screen in a folder 
+        if self.recording == True:
+            newpath = "saved_images\\" + "hexagon" + self.rule.replace('/','_')
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            pygame.image.save(self.surface, "saved_images/"+ "hexagon" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+        
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -273,9 +284,11 @@ class Hexagon(Stage):
                         self.color[col, row] = COLOR_BLACK
                         pygame.draw.polygon(
                             self.surface, self.color[col, row], self.hexagon_vertices[col, row])
-                    # self.update()
                     pygame.display.update()
-
+                elif event.key == pygame.K_s: # Check if s key gets pressed down
+                    self.recording = not self.recording
+                    self.change_caption()
+                    
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position
                 for col, row in np.ndindex(self.grid_size):
@@ -284,8 +297,7 @@ class Hexagon(Stage):
                         self.grid[col, row] = 1  # Cell becomes alive
                         self.color[col, row] = COLOR_WHITE  # Thus, gets white
                         # Draw new hexagon:
-                        pygame.draw.polygon(
-                            self.surface, self.color[col, row], self.hexagon_vertices[col, row])
+                        pygame.draw.polygon(self.surface, self.color[col, row], self.hexagon_vertices[col, row])
                         # Show it on screen:
                         pygame.display.update()
             elif pygame.mouse.get_pressed()[2]:  # True if right-click
@@ -296,8 +308,7 @@ class Hexagon(Stage):
                         self.grid[col, row] = 0  # Cell is killed
                         self.color[col, row] = COLOR_BLACK  # Thus, gets black
                         # Draw new hexagon:
-                        pygame.draw.polygon(
-                            self.surface, self.color[col, row], self.hexagon_vertices[col, row])
+                        pygame.draw.polygon(self.surface, self.color[col, row], self.hexagon_vertices[col, row])
                         # Show it on screen:
                         pygame.display.update()
             # Analogous action that prints number of alive neighbours on terminal.
@@ -322,7 +333,7 @@ class Hexagon(Stage):
                 time.sleep(0.01)
                 self.update()
 
-# Check this script independetly: (do not uncomment if running main.py)
+## Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))
 # stage = Hexagon(window, L = 5.5)
 # stage.run()

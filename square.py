@@ -12,6 +12,7 @@
 # IMPORTS
 # Standard library imports
 import time
+import os 
 
 # Third-party imports
 import pygame
@@ -58,13 +59,7 @@ class Square(Stage):
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED,
                          alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
-
-        # Processing window caption:
-        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
-        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in square grid'
-        pygame.display.set_caption(caption) 
-            
+        
         # Set the background color
         self.surface.fill(COLOR_GRID)
 
@@ -105,6 +100,11 @@ class Square(Stage):
 
         # Set the running flag to False
         self.running = False
+        
+        # Set the recording flag to False
+        self.recording = False
+        
+        self.change_caption()
 
     # Function to calculate the number of alive neighbours
     def alive_square(self, cell: np.ndarray, x: int, y: int) -> int:
@@ -138,17 +138,18 @@ class Square(Stage):
         # Processing window caption:
         birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
         survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in square grid'
+        self.rule = 'B'+"".join(birth_string)+'S'+"".join(survival_string)
+        if self.recording:
+            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' ' + ' in square grid (RECORDING SCREEN)' 
+        else:
+            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' ' + ' in square grid' 
         pygame.display.set_caption(caption) 
         
     # Update state of the cellular automata and the screen
     def update(self) -> None:
         
         # Processing window caption:
-        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
-        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in square grid'
-        pygame.display.set_caption(caption) 
+        self.change_caption()
         
         # Initially asume every cell is dead (0)
         updated_cells = np.zeros((self.grid.shape[0], self.grid.shape[1]))
@@ -180,6 +181,14 @@ class Square(Stage):
             # Draw updated hexagons
             pygame.draw.rect(
                 self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
+        
+        # Save screen in a folder 
+        if self.recording == True:
+            newpath = "saved_images\\" + "square" + self.rule.replace('/','_')
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            pygame.image.save(self.surface, "saved_images/"+ "square" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -207,8 +216,10 @@ class Square(Stage):
                         self.color[col, row] = COLOR_BLACK
                         pygame.draw.rect(
                             self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
-                    # self.update()
                     pygame.display.update()
+                elif event.key == pygame.K_s: # Check if s key gets pressed down
+                    self.recording = not self.recording
+                    self.change_caption()
 
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position

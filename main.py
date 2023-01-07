@@ -57,6 +57,7 @@ def generate_new_square() -> None:
       Generates a new Square stage for the cellular automata.
     """
     global stage, stage_st
+    scale.set(10)
     stage = Square(game_surface)
     stage_st = "SQU"
 
@@ -66,6 +67,7 @@ def generate_new_hexagon() -> None:
       Generates a new Hexagon stage for the cellular automata.
     """
     global stage, stage_st
+    scale.set(5)
     stage = Hexagon(game_surface)
     stage_st = "HEX"
 
@@ -75,6 +77,7 @@ def generate_new_Voronoi() -> None:
       Generates a new Voronoi stage for the cellular automata.
     """
     global stage, stage_st
+    scale.set(6)
     stage = VoronoiGrid(game_surface)
     stage_st = "VOR"
 
@@ -222,6 +225,7 @@ changeL.grid(row=3, column=0, columnspan=1)
 scale = tk.Scale(from_=3, to=50, digits=3,
                  orient=tk.HORIZONTAL, resolution=0.001)
 scale.grid(row=3, column=1, columnspan=1)
+scale.set(5)
 
 btnL = tk.Button(root, text="Set Size", command=apply_changes)
 btnL.grid(row=3, column=2)
@@ -262,6 +266,7 @@ def send_selected_rule() -> None:
         log(f"The rule {msg} is invalid. Please set a valid rule")
         log("Example of valid rule: " + example_rules[np.random.randint(len(example_rules))])
     stage.change_caption()
+    
 
 def is_rule_valid(rule: str) -> bool:
     """
@@ -334,7 +339,7 @@ time_label.grid(row=6, column=0, columnspan=1)
 scale_time = tk.Scale(from_=5, to=120, digits=3,
                       orient=tk.HORIZONTAL, resolution=0.001)
 scale_time.grid(row=6, column=1, columnspan=1)
-
+scale_time.set(15)
 
 def apply_time() -> None:
     global frame_rate
@@ -342,7 +347,6 @@ def apply_time() -> None:
 
 btnL = tk.Button(root, text="Set FPS", command=apply_time)
 btnL.grid(row=6, column=2)
-
 
 ###########
 # Main Loop
@@ -356,7 +360,6 @@ while True:
     stage.handle_events()
     if stage.running:
         stage.update()
-        pygame.display.update()
         # Limit the frame rate to the desired value
         clock.tick(frame_rate)
 

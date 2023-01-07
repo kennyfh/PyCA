@@ -12,6 +12,7 @@
 # IMPORTS
 # Standard library imports
 import time
+import os 
 
 # Third-party imports
 import pygame
@@ -62,7 +63,9 @@ class VoronoiGrid(Stage):
                  alive_neighbours_to_survive: List[int] = [1,2,3,4,5,6,7,8,9],
                  initial_alive_probability: int = 0.0) -> None:
         
+        # Set the loading flag to True in order to make initial calculations without event handling issues
         self.loading = True
+        
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED,
                          alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
@@ -70,7 +73,8 @@ class VoronoiGrid(Stage):
         # Processing window caption:
         birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
         survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in Voronoi grid'
+        self.rule = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)
+        caption = self.rule + 'in Voronoi grid'
         pygame.display.set_caption(caption) 
         
         # Set the size of the grid
@@ -211,7 +215,13 @@ class VoronoiGrid(Stage):
         # Set the running flag to False
         self.running = False
         
+        # Set the recording flag to False
+        self.recording = False
+        
+        # Set the loading flag to false 
         self.loading = False
+        
+        self.change_caption()
 
     # Function to calculate the number of alive neighbours
     def alive_voronoi(self, cell: int) -> int:
@@ -233,7 +243,11 @@ class VoronoiGrid(Stage):
         # Processing window caption:
         birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
         survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in Voronoi grid'
+        self.rule = 'B'+"".join(birth_string)+'S'+"".join(survival_string)
+        if self.recording:
+            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' ' + 'in Voronoi grid (RECORDING SCREEN)' 
+        else:
+            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' ' + 'in Voronoi grid' 
         pygame.display.set_caption(caption) 
     
     def update(self) -> None:
@@ -241,10 +255,7 @@ class VoronoiGrid(Stage):
          Update state of the cellular automata and the screen
         """
         # Processing window caption:
-        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
-        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' in Voronoi grid'
-        pygame.display.set_caption(caption) 
+        self.change_caption()
         
         # Initially asume every cell is dead (0)
         updated_cells = np.zeros(self.number_of_regions)
@@ -278,6 +289,13 @@ class VoronoiGrid(Stage):
                 self.surface, self.color[cell], self.voronoi_vertices[cell])
             pygame.draw.polygon(self.surface, COLOR_GRID,
                                 self.voronoi_vertices[cell], 1)
+        # Save screen in a folder 
+        if self.recording == True:
+            newpath = "saved_images\\" + "Voronoi" + self.rule.replace('/','_')
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            pygame.image.save(self.surface, "saved_images/"+ "Voronoi" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -307,7 +325,9 @@ class VoronoiGrid(Stage):
                         pygame.draw.polygon(
                             self.surface, self.color[cell], self.voronoi_vertices[cell])
                     self.update()
-                    # pygame.display.update()
+                elif event.key == pygame.K_s: # Check if s key gets pressed down
+                    self.recording = not self.recording
+                    self.change_caption()
 
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position
