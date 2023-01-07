@@ -113,7 +113,16 @@ class Hexagon(Stage):
         
         # Processing window caption:
         self.change_caption()
-
+        
+        # Attribute to communicate with main log
+        self.log_state = 0
+        
+        # Message for global log
+        self.message = None
+    def log(self, message):
+        self.message = message
+        self.log_state = self.log_state + 1
+        
     # Calculate the coordinates of the hexagon corresponding to (col,row) coordinates.
     # Takes the length of the side of the hexagons and the position of the (0,0) one as
     # parameters.
@@ -200,7 +209,7 @@ class Hexagon(Stage):
                 + cell[x, y_pre] + cell[x_post, y_pre] \
                 + cell[x, y_post] + cell[x_post, y_post] #+ cell[x,y]
 
-        return alive_neighbours
+        return int(alive_neighbours)
     
     def change_caption(self) -> None: 
         # Processing window caption:
@@ -319,11 +328,12 @@ class Hexagon(Stage):
                 for col, row in np.ndindex(self.grid_size):
                     if self.RectHitbox[col, row].collidepoint(pos):
                         if self.grid[col, row] == 1:
-                            print('This cell {} is alive'.format((col, row)))
+                            state = 'alive'
                         else:
-                            print('This cell {} is dead'.format((col, row)))
-                        print('Alive neighbours: {}'.format(
+                            state = 'dead'
+                        self.log('This cell {} is'.format((col, row))+ ' ' + state +'. Alive neighbours: {}'.format(
                             self.alive_hexagon(self.grid, col, row)))
+
     def run(self) -> None:
         # Main loop
         while True:

@@ -105,6 +105,15 @@ class Square(Stage):
         self.recording = False
         
         self.change_caption()
+        
+        # Attribute to communicate with main log
+        self.log_state = 0
+        
+        # Message for global log
+        self.message = None
+    def log(self, message):
+        self.message = message
+        self.log_state = self.log_state + 1
 
     # Function to calculate the number of alive neighbours
     def alive_square(self, cell: np.ndarray, x: int, y: int) -> int:
@@ -132,7 +141,7 @@ class Square(Stage):
             + cell[x_pre, y_pre] + cell[x, y_pre] + cell[x_post, y_pre] \
             + cell[x_pre, y_post] + cell[x, y_post] + cell[x_post, y_post]
 
-        return alive_neighbours
+        return int(alive_neighbours)
 
     def change_caption(self) -> None:
         # Processing window caption:
@@ -253,10 +262,10 @@ class Square(Stage):
                 for col, row in np.ndindex(self.grid_size):
                     if self.RectHitbox[col, row].collidepoint(pos):
                         if self.grid[col, row] == 1:
-                            print('This cell {} is alive'.format((col, row)))
+                            state = 'alive'
                         else:
-                            print('This cell {} is dead'.format((col, row)))
-                        print('Alive neighbours: {}'.format(
+                            state = 'dead'
+                        self.log('This cell {} is'.format((col, row))+ ' ' + state +'. Alive neighbours: {}'.format(
                             self.alive_square(self.grid, col, row)))
 
     def run(self) -> None:

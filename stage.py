@@ -34,12 +34,12 @@ alive_neighbours_to_survive = [2]
 
 # B1S- makes cool patterns
 # B-S123456 too
-# B2S2 has some blinkers and is similar to B2S23 square grid in proportion to neighbourhood
+# B2S2 shows some blinkers and is similar to B2S23 square grid in proportion to neighbourhood
 # Check B2S345 and others B2S-
 # Look for reference of previous works (some rules show gliders)
 
 
-# These are supposedly constant values: (screen dimensions)
+# These are constant values: (screen dimensions)
 Lx = 800
 Ly = 600
 

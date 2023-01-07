@@ -222,6 +222,15 @@ class VoronoiGrid(Stage):
         self.loading = False
         
         self.change_caption()
+        
+        # Attribute to communicate with main log
+        self.log_state = 0
+        
+        # Message for global log
+        self.message = None
+    def log(self, message):
+        self.message = message
+        self.log_state = self.log_state + 1
 
     # Function to calculate the number of alive neighbours
     def alive_voronoi(self, cell: int) -> int:
@@ -237,7 +246,7 @@ class VoronoiGrid(Stage):
         alive_neighbours = 0
         for neighbour in self.neighbours[cell]:
             alive_neighbours = alive_neighbours + self.grid[neighbour]
-        return alive_neighbours
+        return int(alive_neighbours)
 
     def change_caption(self) -> None:
         # Processing window caption:
@@ -368,10 +377,11 @@ class VoronoiGrid(Stage):
                     if self.RectHitbox[cell].collidepoint(pos):
                         if is_in_polygon(pos, self.voronoi_vertices[cell]):
                             if self.grid[cell] == 1:
-                                print('This cell {} is alive'.format(cell))
+                                state = 'alive'
                             else:
-                                print('This cell {} is dead'.format(cell))
-                            print('Alive neighbours: {}'.format(self.alive_voronoi(cell)))
+                                state = 'dead'
+                            self.log('This cell ({}) is'.format((cell[0]))+ ' ' + state +'. Alive neighbours: {}'.format(
+                                self.alive_voronoi(cell)))
                             
     def run(self) -> None:
         # Main loop

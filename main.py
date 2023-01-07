@@ -348,6 +348,13 @@ def apply_time() -> None:
 btnL = tk.Button(root, text="Set FPS", command=apply_time)
 btnL.grid(row=6, column=2)
 
+
+def global_handle_events() -> None:
+    stage_log_state_A = stage.log_state
+    stage.handle_events()
+    stage_log_state_B = stage.log_state
+    if stage_log_state_A != stage_log_state_B:
+        log(stage.message)
 ###########
 # Main Loop
 ###########
@@ -357,7 +364,7 @@ clock = pygame.time.Clock()
 
 while True:
     # Update the Stage (Square, Hexagon, Voronoi)
-    stage.handle_events()
+    global_handle_events()
     if stage.running:
         stage.update()
         # Limit the frame rate to the desired value
