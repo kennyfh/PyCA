@@ -18,6 +18,7 @@ import numpy as np
 import pygame
 import tkinter as tk
 from tkinter import colorchooser
+from tkinter import messagebox
 from typing import Tuple
 
 # Own local imports
@@ -89,7 +90,7 @@ def show_controls() -> None:
     """
       Show game controls on message box
     """
-    tk.messagebox.showinfo('Controls',"LEFT CLICK: Bring selected cell to life \n" + 
+    messagebox.showinfo('Controls',"LEFT CLICK: Bring selected cell to life \n" + 
                                     "RIGHT CLICK: Kill selected cell \n" +                                     
                                     "MOUSE WHEEL CLICK: Show info about selected cell \n \n" +
                                     "SPACE BAR: Start/stop simulation \n" +
@@ -381,6 +382,15 @@ def global_handle_events() -> None:
 
 # Create a Clock object to control the frame rate
 clock = pygame.time.Clock()
+
+# Close tkinter and pygame simus
+def close_windows():
+    root.destroy()
+    pygame.quit()
+
+# Set the close_windows function to be called when the tkinter window is closed
+root.protocol("WM_DELETE_WINDOW", close_windows)
+
 
 while True:
     # Update the Stage (Square, Hexagon, Voronoi)

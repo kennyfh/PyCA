@@ -299,7 +299,7 @@ class VoronoiGrid(Stage):
             pygame.draw.polygon(self.surface, COLOR_GRID,
                                 self.voronoi_vertices[cell], 1)
         # Save screen in a folder 
-        if self.recording == True:
+        if self.recording:
             newpath = "saved_images\\" + "Voronoi" + self.rule.replace('/','_')
             if not os.path.exists(newpath):
                 os.makedirs(newpath)

@@ -260,7 +260,7 @@ class Hexagon(Stage):
                 self.surface, self.color[col, row], self.hexagon_vertices[col, row])
         
         # Save screen in a folder 
-        if self.recording == True:
+        if self.recording:
             newpath = "saved_images\\" + "hexagon" + self.rule.replace('/','_')
             if not os.path.exists(newpath):
                 os.makedirs(newpath)

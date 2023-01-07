@@ -192,7 +192,7 @@ class Square(Stage):
                 self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
         
         # Save screen in a folder 
-        if self.recording == True:
+        if self.recording:
             newpath = "saved_images\\" + "square" + self.rule.replace('/','_')
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
