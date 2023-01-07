@@ -103,7 +103,7 @@ def show_controls() -> None:
 
 
 header_label = tk.Label(root, text="Welcome to PyCA", font=("Helvetica", 18))
-header_label.grid(row=0, column=1, columnspan=2,
+header_label.grid(row=0, column=0, columnspan=5,
                   pady=20, padx=20, sticky="nsew")
 
 label1 = tk.Label(root, text="Generate default new stage:", font=("Helvetica", 10))
@@ -113,8 +113,8 @@ label1.grid(row=1, column=0)
 # LOG FUNC
 #####
 frame = tk.Frame(root)
-root.rowconfigure(7, weight=1)
-frame.grid(row=7, column=0, columnspan=4, rowspan=999, sticky="nsew", padx=10, pady=10)
+root.rowconfigure(10, weight=1)
+frame.grid(row=10, column=0, columnspan=4, rowspan=999, sticky="nsew", padx=10, pady=10)
 
 # Create a Text widget to display the log
 log_text = tk.Text(frame)
@@ -160,7 +160,7 @@ button3.grid(row=1, column=3, padx=5, pady=10)
 # Controls
 #######
 button_controls = tk.Button(root, text="Show controls", command=show_controls, bg = "pink")
-button_controls.grid(row=3, column=3, padx=5, pady=10)
+button_controls.grid(row=0, column=2,columnspan=3, padx=10, pady=1 )
 #######
 # CHANGE COLOR CELLS
 #######
