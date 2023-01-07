@@ -231,6 +231,15 @@ class VoronoiGrid(Stage):
     def log(self, message):
         self.message = message
         self.log_state = self.log_state + 1
+        
+    def screenshot(self) -> None:
+        # Save screen in a folder 
+        if self.recording == True:
+            newpath = "saved_images\\" + "Voronoi" + self.rule.replace('/','_')
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            pygame.image.save(self.surface, "saved_images/"+ "Voronoi" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+
 
     # Function to calculate the number of alive neighbours
     def alive_voronoi(self, cell: int) -> int:
@@ -299,12 +308,8 @@ class VoronoiGrid(Stage):
             pygame.draw.polygon(self.surface, COLOR_GRID,
                                 self.voronoi_vertices[cell], 1)
         # Save screen in a folder 
-        if self.recording == True:
-            newpath = "saved_images\\" + "Voronoi" + self.rule.replace('/','_')
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-            pygame.image.save(self.surface, "saved_images/"+ "Voronoi" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
-
+        self.screenshot()
+        
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -325,7 +330,6 @@ class VoronoiGrid(Stage):
                     # watch evolution in detail:
                     self.running = False
                     self.update()
-                    pygame.display.update()
                 elif event.key == pygame.K_DOWN:  # Check if down arrow gets pressed down
                     self.running = False
                     for cell in range(self.number_of_regions):
@@ -337,6 +341,8 @@ class VoronoiGrid(Stage):
                 elif event.key == pygame.K_s: # Check if s key gets pressed down
                     self.recording = not self.recording
                     self.change_caption()
+                    if self.recording:
+                        self.screenshot()
 
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position

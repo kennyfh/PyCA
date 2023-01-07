@@ -18,6 +18,7 @@ import numpy as np
 import pygame
 import tkinter as tk
 from tkinter import colorchooser
+from tkinter import messagebox 
 from typing import Tuple
 
 # Own local imports
@@ -89,7 +90,7 @@ def show_controls() -> None:
     """
       Show game controls on message box
     """
-    tk.messagebox.showinfo('Controls',"LEFT CLICK: Bring selected cell to life \n" + 
+    messagebox.showinfo('Controls',"LEFT CLICK: Bring selected cell to life \n" + 
                                     "RIGHT CLICK: Kill selected cell \n" +                                     
                                     "MOUSE WHEEL CLICK: Show info about selected cell \n \n" +
                                     "SPACE BAR: Start/stop simulation \n" +

@@ -123,6 +123,15 @@ class Hexagon(Stage):
         self.message = message
         self.log_state = self.log_state + 1
         
+    def screenshot(self) -> None:
+        # Save screen in a folder 
+        if self.recording == True:
+            newpath = "saved_images\\" + "hexagon" + self.rule.replace('/','_')
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            pygame.image.save(self.surface, "saved_images/"+ "hexagon" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+        
+        
     # Calculate the coordinates of the hexagon corresponding to (col,row) coordinates.
     # Takes the length of the side of the hexagons and the position of the (0,0) one as
     # parameters.
@@ -260,11 +269,7 @@ class Hexagon(Stage):
                 self.surface, self.color[col, row], self.hexagon_vertices[col, row])
         
         # Save screen in a folder 
-        if self.recording == True:
-            newpath = "saved_images\\" + "hexagon" + self.rule.replace('/','_')
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-            pygame.image.save(self.surface, "saved_images/"+ "hexagon" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+        self.screenshot()
         
         # Show updates on screen
         pygame.display.update()
@@ -285,7 +290,6 @@ class Hexagon(Stage):
                     # watch evolution in detail:
                     self.running = False
                     self.update()
-                    pygame.display.update()
                 elif event.key == pygame.K_DOWN:  # Check if down arrow gets pressed down
                     self.running = False
                     for col, row in np.ndindex(self.grid.shape):
@@ -297,6 +301,8 @@ class Hexagon(Stage):
                 elif event.key == pygame.K_s: # Check if s key gets pressed down
                     self.recording = not self.recording
                     self.change_caption()
+                    if self.recording:
+                        self.screenshot()
                     
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position

@@ -114,6 +114,14 @@ class Square(Stage):
     def log(self, message):
         self.message = message
         self.log_state = self.log_state + 1
+    
+    def screenshot(self) -> None:
+        # Save screen in a folder 
+        if self.recording == True:
+            newpath = "saved_images\\" + "square" + self.rule.replace('/','_')
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            pygame.image.save(self.surface, "saved_images/"+ "square" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
 
     # Function to calculate the number of alive neighbours
     def alive_square(self, cell: np.ndarray, x: int, y: int) -> int:
@@ -192,12 +200,8 @@ class Square(Stage):
                 self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
         
         # Save screen in a folder 
-        if self.recording == True:
-            newpath = "saved_images\\" + "square" + self.rule.replace('/','_')
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-            pygame.image.save(self.surface, "saved_images/"+ "square" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
-
+        self.screenshot()
+        
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -215,9 +219,8 @@ class Square(Stage):
                 elif event.key == pygame.K_RIGHT:  # Check if right arrow gets pressed down
                     # This key allows single step update in order to
                     # watch evolution in detail:
-                    self.running = False
+                    self.running = False                    
                     self.update()
-                    pygame.display.update()
                 elif event.key == pygame.K_DOWN:  # Check if down arrow gets pressed down
                     self.running = False
                     for col, row in np.ndindex(self.grid.shape):
@@ -229,6 +232,8 @@ class Square(Stage):
                 elif event.key == pygame.K_s: # Check if s key gets pressed down
                     self.recording = not self.recording
                     self.change_caption()
+                    if self.recording:
+                        self.screenshot()
 
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position
