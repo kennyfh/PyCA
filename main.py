@@ -18,11 +18,7 @@ import numpy as np
 import pygame
 import tkinter as tk
 from tkinter import colorchooser
-<<<<<<< HEAD
 from tkinter import messagebox 
-=======
-from tkinter import messagebox
->>>>>>> 01c8d60bac1f4f0a462874a09914cecae4aacc4a
 from typing import Tuple
 
 # Own local imports

@@ -269,15 +269,7 @@ class Hexagon(Stage):
                 self.surface, self.color[col, row], self.hexagon_vertices[col, row])
         
         # Save screen in a folder 
-<<<<<<< HEAD
         self.screenshot()
-=======
-        if self.recording:
-            newpath = "saved_images\\" + "hexagon" + self.rule.replace('/','_')
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-            pygame.image.save(self.surface, "saved_images/"+ "hexagon" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
->>>>>>> 01c8d60bac1f4f0a462874a09914cecae4aacc4a
         
         # Show updates on screen
         pygame.display.update()
