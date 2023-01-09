@@ -10,6 +10,7 @@
 # ---------------------------------------------------------------------------
 import time
 import pygame
+import imageio
 import os
 
 COLOR_BLACK = (10, 10, 10)
@@ -97,7 +98,68 @@ class Stage:
     def update(self):
         pass
 
-    def handle_events(self):
+    # Handle pygame events: mainly user instructions
+    def handle_events(self) -> None:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            elif event.type == pygame.KEYDOWN:  # Check if any key gets pressed down
+                if event.key == pygame.K_SPACE:  # Check if spacebar gets pressed down
+                    self.running = not self.running  # Pause and resume button
+                elif event.key == pygame.K_RIGHT:  # Check if right arrow gets pressed down
+                    # This key allows single step update in order to
+                    # watch evolution in detail:
+                    self.running = False                    
+                    self.update()
+                elif event.key == pygame.K_DOWN:  # Check if down arrow gets pressed down
+                    self.running = False
+                    #fun1
+                    self.key_down()
+                    pygame.display.update()
+                # elif event.key == pygame.K_s: # Check if s key gets pressed down
+                #     self.recording = not self.recording
+                #     self.change_caption()
+                #     if self.recording:
+                #         self.screenshot()
+                elif event.key == pygame.K_r:
+                    self.recording = not self.recording
+                    self.change_caption()
+                    if self.recording:
+                        self.writer = imageio.get_writer(self.stage_name + self.rule.replace('/','_') +"_"+str(pygame.time.get_ticks())+".gif", mode='I', fps=1)
+                        self.count_writer = 0
+                        self.record()
+                    # If get pressed down and the list of images is not empty:
+                    elif (not self.recording) and (self.count_writer > 0):
+                        self.writer.close()
+
+            if pygame.mouse.get_pressed()[0]:  # True if left-click
+                # fun2
+                self.left_click()
+
+            elif pygame.mouse.get_pressed()[2]:  # True if right-click
+                # fun3
+                self.right_click()
+
+
+            # Analogous action that prints number of alive neighbours on terminal.
+            # This is mainly implemented for troubleshooting.
+            # Central mouse button (mouse wheel)
+            elif pygame.mouse.get_pressed()[1]:
+                # fun 4
+                self.mouse_wheel()
+
+    # Special key events
+    def key_down(self) -> None:
+        pass
+
+    def left_click(self) -> None:
+        pass
+
+    def right_click(self) -> None:
+        pass
+
+    def mouse_wheel(self) -> None:
         pass
 
     def run(self) -> None:

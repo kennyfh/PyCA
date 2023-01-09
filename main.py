@@ -229,8 +229,7 @@ def apply_changes() -> None:
     if is_rule_valid(msg):
         global alive_neighbours_to_be_born
         global alive_neighbours_to_survive
-        alive_neighbours_to_be_born, alive_neighbours_to_survive = parser_rule(
-            msg)
+        alive_neighbours_to_be_born, alive_neighbours_to_survive = parser_rule(msg)
         stage.alive_neighbours_to_be_born = alive_neighbours_to_be_born
         stage.alive_neighbours_to_survive = alive_neighbours_to_survive
     

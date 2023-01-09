@@ -295,91 +295,58 @@ class VoronoiGrid(Stage):
         # Storage updated grid state in main grid
         self.grid = updated_cells
 
-    # Handle pygame events: mainly user instructions
-    def handle_events(self) -> None:
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-            elif event.type == pygame.KEYDOWN and not self.loading:  # Check if any key gets pressed down
-                if event.key == pygame.K_SPACE:  # Check if spacebar gets pressed down
-                    self.running = not self.running  # Pause and resume button
-                elif event.key == pygame.K_RIGHT:  # Check if right arrow gets pressed down
-                    # This key allows single step update in order to
-                    # watch evolution in detail:
-                    self.running = False
-                    self.update()
-                elif event.key == pygame.K_DOWN:  # Check if down arrow gets pressed down
-                    self.running = False
-                    for cell in range(self.number_of_regions):
+    # Special key events
+    def key_down(self) -> None:
+        for cell in range(self.number_of_regions):
                         self.grid[cell] = 0  # Kill every cell
                         self.color[cell] = COLOR_BLACK
                         pygame.draw.polygon(
                             self.surface, self.color[cell], self.voronoi_vertices[cell])
-                    self.update()
-                # elif event.key == pygame.K_s: # Check if s key gets pressed down
-                #     self.recording = not self.recording
-                #     self.change_caption()
-                #     if self.recording:
-                #         self.screenshot()
 
-                # Record Event
-                elif event.key == pygame.K_r:
-                    self.recording = not self.recording
-                    self.change_caption()
-                    if self.recording:
-                        self.writer = imageio.get_writer("Voronoi" + self.rule.replace('/','_') +"_"+str(pygame.time.get_ticks())+".gif", mode='I', fps=1)
-                        self.count_writer = 0
-                        self.record()
-                    # If get pressed down and the list of images is not empty:
-                    elif (not self.recording) and (self.count_writer > 0):
-                        self.writer.close()
+    def left_click(self) -> None:
+        pos = pygame.mouse.get_pos()  # Get mouse pointer position
+        for cell in range(self.number_of_regions):
+            # Check if user has clicked on any hexagon hitbox:
+            if self.RectHitbox[cell].collidepoint(pos):
+                if is_in_polygon(pos, self.voronoi_vertices[cell]):
+                    self.grid[cell] = 1  # Cell becomes alive
+                    self.color[cell] = COLOR_WHITE  # Thus, gets white
+                    # Draw new hexagon:
+                    pygame.draw.polygon(
+                        self.surface, self.color[cell], self.voronoi_vertices[cell])
+                    pygame.draw.polygon(
+                        self.surface, COLOR_GRID, self.voronoi_vertices[cell], 1)
+                    # Show it on screen:
+                    pygame.display.update()
 
-            if pygame.mouse.get_pressed()[0]:  # True if left-click
-                pos = pygame.mouse.get_pos()  # Get mouse pointer position
-                for cell in range(self.number_of_regions):
-                    # Check if user has clicked on any hexagon hitbox:
-                    if self.RectHitbox[cell].collidepoint(pos):
-                        if is_in_polygon(pos, self.voronoi_vertices[cell]):
-                            self.grid[cell] = 1  # Cell becomes alive
-                            self.color[cell] = COLOR_WHITE  # Thus, gets white
-                            # Draw new hexagon:
-                            pygame.draw.polygon(
-                                self.surface, self.color[cell], self.voronoi_vertices[cell])
-                            pygame.draw.polygon(
-                                self.surface, COLOR_GRID, self.voronoi_vertices[cell], 1)
-                            # Show it on screen:
-                            pygame.display.update()
-            elif pygame.mouse.get_pressed()[2]:  # True if right-click
-                pos = pygame.mouse.get_pos()  # Get mouse pointer position
-                for cell in range(self.number_of_regions):
-                    # Check if user has clicked on any hexagon hitbox:
-                    if self.RectHitbox[cell].collidepoint(pos):
-                        if is_in_polygon(pos, self.voronoi_vertices[cell]):
-                            self.grid[cell] = 0  # Cell is killed
-                            self.color[cell] = COLOR_BLACK  # Thus, gets black
-                            # Draw new hexagon:
-                            pygame.draw.polygon(
-                                self.surface, self.color[cell], self.voronoi_vertices[cell])
-                            pygame.draw.polygon(
-                                self.surface, COLOR_GRID, self.voronoi_vertices[cell], 1)
-                            # Show it on screen:
-                            pygame.display.update()
-            # Analogous action that prints number of alive neighbours on terminal.
-            # This is mainly implemented for troubleshooting.
-            # Central mouse button (mouse wheel)
-            elif pygame.mouse.get_pressed()[1]:
-                pos = pygame.mouse.get_pos()
-                for cell in np.ndindex(self.grid_size):
-                    if self.RectHitbox[cell].collidepoint(pos):
-                        if is_in_polygon(pos, self.voronoi_vertices[cell]):
-                            if self.grid[cell] == 1:
-                                state = 'alive'
-                            else:
-                                state = 'dead'
-                            self.log('This cell ({}) is'.format((cell[0]))+ ' ' + state +'. Alive neighbours: {}'.format(
-                                self.alive_voronoi(cell)))
+    def right_click(self) -> None:
+        pos = pygame.mouse.get_pos()  # Get mouse pointer position
+        for cell in range(self.number_of_regions):
+            # Check if user has clicked on any hexagon hitbox:
+            if self.RectHitbox[cell].collidepoint(pos):
+                if is_in_polygon(pos, self.voronoi_vertices[cell]):
+                    self.grid[cell] = 0  # Cell is killed
+                    self.color[cell] = COLOR_BLACK  # Thus, gets black
+                    # Draw new hexagon:
+                    pygame.draw.polygon(
+                        self.surface, self.color[cell], self.voronoi_vertices[cell])
+                    pygame.draw.polygon(
+                        self.surface, COLOR_GRID, self.voronoi_vertices[cell], 1)
+                    # Show it on screen:
+                    pygame.display.update()
+
+    def mouse_wheel(self) -> None:
+        pos = pygame.mouse.get_pos()
+        for cell in np.ndindex(self.grid_size):
+            if self.RectHitbox[cell].collidepoint(pos):
+                if is_in_polygon(pos, self.voronoi_vertices[cell]):
+                    if self.grid[cell] == 1:
+                        state = 'alive'
+                    else:
+                        state = 'dead'
+                    self.log('This cell ({}) is'.format((cell[0]))+ ' ' + state +'. Alive neighbours: {}'.format(
+                        self.alive_voronoi(cell)))
+
                             
 
 # # Check this script independetly: (do not uncomment if running main.py)

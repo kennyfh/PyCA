@@ -12,7 +12,7 @@
 # IMPORTS
 # Standard library imports
 import time
-import os 
+import os
 
 # Third-party imports
 import pygame
@@ -60,7 +60,7 @@ class Square(Stage):
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED,
                          alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
-        
+
         # Set the background color
         self.surface.fill(COLOR_GRID)
 
@@ -98,7 +98,8 @@ class Square(Stage):
                 self.grid[col, row] = 0  # Tag dead cells with 0
                 self.color[col, row] = COLOR_BLACK  # Color them white
             # Display on hexagons on screen ans storage their rectangular hitbox:
-            self.RectHitbox[col, row] = pygame.draw.rect(self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
+            self.RectHitbox[col, row] = pygame.draw.rect(
+                self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
         # Update screen:
         pygame.display.update()
         self.change_caption()
@@ -133,10 +134,10 @@ class Square(Stage):
 
     # Update state of the cellular automata and the screen
     def update(self) -> None:
-        
+
         # Processing window caption:
         self.change_caption()
-        
+
         # Initially asume every cell is dead (0)
         updated_cells = np.zeros((self.grid.shape[0], self.grid.shape[1]))
 
@@ -167,10 +168,10 @@ class Square(Stage):
             # Draw updated hexagons
             pygame.draw.rect(
                 self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
-        
-        # Save screen in a folder 
-        #self.screenshot()
-        
+
+        # Save screen in a folder
+        # self.screenshot()
+
         # Save frame to generate record
         self.record()
 
@@ -179,83 +180,51 @@ class Square(Stage):
         # Storage updated grid state in main grid
         self.grid = updated_cells
 
-    # Handle pygame events: mainly user instructions
-    def handle_events(self) -> None:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-            elif event.type == pygame.KEYDOWN:  # Check if any key gets pressed down
-                if event.key == pygame.K_SPACE:  # Check if spacebar gets pressed down
-                    self.running = not self.running  # Pause and resume button
-                elif event.key == pygame.K_RIGHT:  # Check if right arrow gets pressed down
-                    # This key allows single step update in order to
-                    # watch evolution in detail:
-                    self.running = False                    
-                    self.update()
-                elif event.key == pygame.K_DOWN:  # Check if down arrow gets pressed down
-                    self.running = False
-                    for col, row in np.ndindex(self.grid.shape):
-                        self.grid[col, row] = 0  # Kill every cell
-                        self.color[col, row] = COLOR_BLACK
-                        pygame.draw.rect(
-                            self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
-                    pygame.display.update()
-                # elif event.key == pygame.K_s: # Check if s key gets pressed down
-                #     self.recording = not self.recording
-                #     self.change_caption()
-                #     if self.recording:
-                #         self.screenshot()
-                elif event.key == pygame.K_r:
-                    self.recording = not self.recording
-                    self.change_caption()
-                    if self.recording:
-                        self.writer = imageio.get_writer("Square" + self.rule.replace('/','_') +"_"+str(pygame.time.get_ticks())+".gif", mode='I', fps=1)
-                        self.count_writer = 0
-                        self.record()
-                    # If get pressed down and the list of images is not empty:
-                    elif (not self.recording) and (self.count_writer > 0):
-                        self.writer.close()
+    # Special key events
+    def key_down(self) -> None:
+        for col, row in np.ndindex(self.grid.shape):
+            self.grid[col, row] = 0  # Kill every cell
+            self.color[col, row] = COLOR_BLACK
+            pygame.draw.rect(
+                self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
 
-            if pygame.mouse.get_pressed()[0]:  # True if left-click
-                pos = pygame.mouse.get_pos()  # Get mouse pointer position
-                for col, row in np.ndindex(self.grid_size):
-                    # Check if user has clicked on any hexagon hitbox:
-                    if self.RectHitbox[col, row].collidepoint(pos):
-                        self.grid[col, row] = 1  # Cell becomes alive
-                        self.color[col, row] = COLOR_WHITE  # Thus, gets white
-                        # Draw new hexagon:
-                        pygame.draw.rect(
-                            self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
-                        # Show it on screen:
-                        pygame.display.update()
-            elif pygame.mouse.get_pressed()[2]:  # True if right-click
-                pos = pygame.mouse.get_pos()  # Get mouse pointer position
-                for col, row in np.ndindex(self.grid_size):
-                    # Check if user has clicked on any hexagon hitbox:
-                    if self.RectHitbox[col, row].collidepoint(pos):
-                        self.grid[col, row] = 0  # Cell is killed
-                        self.color[col, row] = COLOR_BLACK  # Thus, gets black
-                        # Draw new hexagon:
-                        pygame.draw.rect(
-                            self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
-                        # Show it on screen:
-                        pygame.display.update()
-            # Analogous action that prints number of alive neighbours on terminal.
-            # This is mainly implemented for troubleshooting.
-            # Central mouse button (mouse wheel)
-            elif pygame.mouse.get_pressed()[1]:
-                pos = pygame.mouse.get_pos()
-                for col, row in np.ndindex(self.grid_size):
-                    if self.RectHitbox[col, row].collidepoint(pos):
-                        if self.grid[col, row] == 1:
-                            state = 'alive'
-                        else:
-                            state = 'dead'
-                        self.log('This cell {} is'.format((col, row))+ ' ' + state +'. Alive neighbours: {}'.format(
-                            self.alive_square(self.grid, col, row)))
+    def left_click(self) -> None:
+        pos = pygame.mouse.get_pos()  # Get mouse pointer position
+        for col, row in np.ndindex(self.grid_size):
+            # Check if user has clicked on any hexagon hitbox:
+            if self.RectHitbox[col, row].collidepoint(pos):
+                self.grid[col, row] = 1  # Cell becomes alive
+                self.color[col, row] = COLOR_WHITE  # Thus, gets white
+                # Draw new hexagon:
+                pygame.draw.rect(
+                    self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
+                # Show it on screen:
+                pygame.display.update()
 
-    
+    def right_click(self) -> None:
+        pos = pygame.mouse.get_pos()  # Get mouse pointer position
+        for col, row in np.ndindex(self.grid_size):
+            # Check if user has clicked on any hexagon hitbox:
+            if self.RectHitbox[col, row].collidepoint(pos):
+                self.grid[col, row] = 0  # Cell is killed
+                self.color[col, row] = COLOR_BLACK  # Thus, gets black
+                # Draw new hexagon:
+                pygame.draw.rect(
+                    self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
+                # Show it on screen:
+                pygame.display.update()
+
+    def mouse_wheel(self) -> None:
+        pos = pygame.mouse.get_pos()
+        for col, row in np.ndindex(self.grid_size):
+            if self.RectHitbox[col, row].collidepoint(pos):
+                if self.grid[col, row] == 1:
+                    state = 'alive'
+                else:
+                    state = 'dead'
+                self.log('This cell {} is'.format((col, row))+ ' ' + state +'. Alive neighbours: {}'.format(
+                    self.alive_square(self.grid, col, row)))
+
 
 # Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))
