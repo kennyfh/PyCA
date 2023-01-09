@@ -385,8 +385,9 @@ clock = pygame.time.Clock()
 
 # Close tkinter and pygame simus
 def close_windows():
-    root.destroy()
+    pygame.display.quit()
     pygame.quit()
+    root.destroy()
 
 # Set the close_windows function to be called when the tkinter window is closed
 root.protocol("WM_DELETE_WINDOW", close_windows)
@@ -402,3 +403,5 @@ while True:
 
     # Update the Tkinter interface
     root.update()
+
+

@@ -90,7 +90,8 @@ class Stage:
         # Set the recording flag to False
         self.recording = False
         self.stage_name = "Stage"
-        
+
+
     def log(self, message) -> None:
         self.message = message
         self.log_state = self.log_state + 1
@@ -110,11 +111,11 @@ class Stage:
                 elif event.key == pygame.K_RIGHT:  # Check if right arrow gets pressed down
                     # This key allows single step update in order to
                     # watch evolution in detail:
-                    self.running = False                    
+                    self.running = False
                     self.update()
                 elif event.key == pygame.K_DOWN:  # Check if down arrow gets pressed down
                     self.running = False
-                    #fun1
+                    # fun1
                     self.key_down()
                     pygame.display.update()
                 # elif event.key == pygame.K_s: # Check if s key gets pressed down
@@ -126,7 +127,8 @@ class Stage:
                     self.recording = not self.recording
                     self.change_caption()
                     if self.recording:
-                        self.writer = imageio.get_writer(self.stage_name + self.rule.replace('/','_') +"_"+str(pygame.time.get_ticks())+".gif", mode='I', fps=1)
+                        self.writer = imageio.get_writer(self.stage_name + self.rule.replace(
+                            '/', '_') + "_"+str(pygame.time.get_ticks())+".gif", mode='I', fps=1)
                         self.count_writer = 0
                         self.record()
                     # If get pressed down and the list of images is not empty:
@@ -140,7 +142,6 @@ class Stage:
             elif pygame.mouse.get_pressed()[2]:  # True if right-click
                 # fun3
                 self.right_click()
-
 
             # Analogous action that prints number of alive neighbours on terminal.
             # This is mainly implemented for troubleshooting.
@@ -176,23 +177,28 @@ class Stage:
         survival_string = [str(x) for x in self.alive_neighbours_to_survive]
         self.rule = 'B'+"".join(birth_string)+'S'+"".join(survival_string)
         if self.recording:
-            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string) + ' in '+ self.stage_name+ ' grid (RECORDING SCREEN)' 
+            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string) + \
+                ' in ' + self.stage_name + ' grid (RECORDING SCREEN)'
         else:
-            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string) + ' in ' + self.stage_name +' grid' 
-        pygame.display.set_caption(caption) 
+            caption = 'B'+"".join(birth_string)+'/S' + \
+                "".join(survival_string) + ' in ' + self.stage_name + ' grid'
+        pygame.display.set_caption(caption)
 
     def show_controls(self):
         pass
 
     def screenshot(self) -> None:
-        # Save screen in a folder 
-        if self.recording == True:
-            newpath = "saved_images\\" + self.stage_name + self.rule.replace('/','_')
+        # Save screen in a folder
+        if self.recording:
+            newpath = os.path.join(
+                "saved_images", self.stage_name, self.rule.replace('/', '_'))
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
-            pygame.image.save(self.surface, "saved_images/"+ self.stage_name + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
-
-
+            # pygame.image.save(self.surface, "saved_images/"+ self.stage_name + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+            path = os.path.join("saved_images",
+                                self.stage_name, self.rule.replace('/', '_'),
+                                str(pygame.time.get_ticks()), ".png")
+            pygame.image.save(self.surface, path)
 
     def record(self) -> None:
         if self.recording:
