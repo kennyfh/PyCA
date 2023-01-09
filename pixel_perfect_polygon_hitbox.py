@@ -15,9 +15,6 @@
 import numpy as np
 from typing import List,Tuple
 
-
-
-
 def ordered_vertices(vertices: List[Tuple[float, float]]) -> List[Tuple[float, float]]:
     """
     Given a list of vertices in any order, this function returns the vertices in
@@ -35,15 +32,11 @@ def ordered_vertices(vertices: List[Tuple[float, float]]) -> List[Tuple[float, f
     center_x = np.average(list(zip(*vertices))[0])
     center_y = np.average(list(zip(*vertices))[1])
     center = np.array([center_x,center_y])
-    #unit_reference_vector = np.array([0,1])
-    #unit_reference_vector = (np.array(vertices[0]) - center)/np.linalg.norm(center - np.array(vertices[0]))
     k = 0
     for i,j in vertices:
         
         unit_vector_to_center = (np.array([i,j]) - center)/np.linalg.norm(center - np.array([i,j]))
-        #print(np.dot(unit_vector_to_center,unit_reference_vector))
-        
-        #angle[0,k] = np.arccos(np.dot(unit_vector_to_center,unit_reference_vector))
+
         angle[0,k] = np.arccos(unit_vector_to_center[1])
         
         if i < center[0]:
@@ -52,14 +45,10 @@ def ordered_vertices(vertices: List[Tuple[float, float]]) -> List[Tuple[float, f
         k = k + 1
     
     angle = angle*180/np.pi
-    # print(angle.tolist()[0])
-    # print(vertices)
-    # print(center)
-
     ordered_vertices = [x for _, x in sorted(zip(angle.tolist()[0], vertices), key=lambda pair: pair[0])]
-    #Z = [x for _, x in sorted(zip(Y,X))]
-    #Z = [x for _, x in sorted(zip(Y, X), key=lambda pair: pair[0])]
-    return ordered_vertices #list of tuples
+
+    #list of tuples
+    return ordered_vertices
 
 def is_in_polygon(point: Tuple[float, float], ordered_vertices: List[Tuple[float, float]]) -> bool:
     """
@@ -102,10 +91,6 @@ def is_in_polygon(point: Tuple[float, float], ordered_vertices: List[Tuple[float
             
             if cross_product_z > 0:
                 positive_cross_products = positive_cross_products + 1
-    #print(positive_cross_products)            
-    if positive_cross_products == len(ordered_vertices):
-        return True
-    else:
-        return False
-    
+           
+    return True if positive_cross_products == len(ordered_vertices) else False
     

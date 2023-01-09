@@ -8,6 +8,9 @@
 # ---------------------------------------------------------------------------
 # Parent class where the 3 scenarios will be created: Quadratic, Hexagonal and Voronoi
 # ---------------------------------------------------------------------------
+import time
+import pygame
+import os
 
 COLOR_BLACK = (10, 10, 10)
 COLOR_WHITE = (255, 255, 255)
@@ -58,7 +61,15 @@ class Stage:
         initial_alive_probability (float, optional): The probability that a cell will be initially alive. Default is 0.
     """
 
-    def __init__(self, surface, L=10, COLOR_JUST_BORN=(255, 255, 255), COLOR_SURVIVED=(255, 255, 255), alive_neighbours_to_be_born=[3], alive_neighbours_to_survive=[2, 3], initial_alive_probability=0):
+    def __init__(self,
+                 surface,
+                 L=10,
+                 COLOR_JUST_BORN=(255, 255, 255),
+                 COLOR_SURVIVED=(255, 255, 255),
+                 alive_neighbours_to_be_born=[3],
+                 alive_neighbours_to_survive=[2, 3],
+                 initial_alive_probability=0) -> None:
+
         self.surface = surface
         self.L = L
         self.COLOR_JUST_BORN = COLOR_JUST_BORN
@@ -66,6 +77,22 @@ class Stage:
         self.alive_neighbours_to_be_born = alive_neighbours_to_be_born
         self.alive_neighbours_to_survive = alive_neighbours_to_survive
         self.initial_alive_probability = initial_alive_probability
+        # Generate gifs
+        self.writer = None
+        self.count_writer = 0
+        # Attribute to communicate with main log
+        self.log_state = 0
+        # Message for global log
+        self.message = None
+        # Set the running flag to False
+        self.running = False
+        # Set the recording flag to False
+        self.recording = False
+        self.stage_name = "Stage"
+        
+    def log(self, message) -> None:
+        self.message = message
+        self.log_state = self.log_state + 1
 
     def update(self):
         pass
@@ -73,8 +100,41 @@ class Stage:
     def handle_events(self):
         pass
 
-    def run(self):
-        pass
-    
+    def run(self) -> None:
+        # Main loop
+        while True:
+            self.handle_events()
+            if self.running:
+                time.sleep(0.01)
+                self.update()
+
+    def change_caption(self) -> None:
+        # Processing window caption:
+        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
+        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
+        self.rule = 'B'+"".join(birth_string)+'S'+"".join(survival_string)
+        if self.recording:
+            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string) + ' in '+ self.stage_name+ ' grid (RECORDING SCREEN)' 
+        else:
+            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string) + ' in ' + self.stage_name +' grid' 
+        pygame.display.set_caption(caption) 
+
     def show_controls(self):
         pass
+
+    def screenshot(self) -> None:
+        # Save screen in a folder 
+        if self.recording == True:
+            newpath = "saved_images\\" + self.stage_name + self.rule.replace('/','_')
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            pygame.image.save(self.surface, "saved_images/"+ self.stage_name + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+
+
+
+    def record(self) -> None:
+        if self.recording:
+            # Save frame
+            frame = pygame.surfarray.array3d(pygame.display.get_surface())
+            self.writer.append_data(frame)
+            self.count_writer += 1

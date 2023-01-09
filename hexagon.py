@@ -113,40 +113,12 @@ class Hexagon(Stage):
         
         # Set the recording flag to False
         self.recording = False
+
+        # Stage Name
+        self.stage_name = "Hexagon"
         
         # Processing window caption:
         self.change_caption()
-        
-        # Attribute to communicate with main log
-        self.log_state = 0
-        
-        # Message for global log
-        self.message = None
-
-        # Array of images to generate gifs
-        self.writer = None
-        self.count_writer = 0
-
-    def log(self, message):
-        self.message = message
-        self.log_state = self.log_state + 1
-        
-    def screenshot(self) -> None:
-        # Save screen in a folder 
-        if self.recording == True:
-            newpath = "saved_images\\" + "hexagon" + self.rule.replace('/','_')
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-            pygame.image.save(self.surface, "saved_images/"+ "hexagon" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
-        
-    def record(self) -> None:
-        # Save frames in buffer
-        if self.recording:
-            # Save frame
-            frame = pygame.surfarray.array3d(pygame.display.get_surface())
-            self.writer.append_data(frame)
-            self.count_writer+=1
-           
         
     # Calculate the coordinates of the hexagon corresponding to (col,row) coordinates.
     # Takes the length of the side of the hexagons and the position of the (0,0) one as
@@ -236,18 +208,6 @@ class Hexagon(Stage):
 
         return int(alive_neighbours)
     
-    def change_caption(self) -> None: 
-        # Processing window caption:
-        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
-        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        self.rule = 'B'+"".join(birth_string)+'S'+"".join(survival_string)
-        if self.recording:
-            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+" "+'in hexagonal grid (RECORDING SCREEN)' 
-        else:
-            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+" "+'in hexagonal grid' 
-            
-        pygame.display.set_caption(caption)
-
     # Update state of the cellular automata and the screen
     def update(self) -> None:
         # Processing window caption:
@@ -333,8 +293,6 @@ class Hexagon(Stage):
                     elif (not self.recording) and (self.count_writer > 0):
                         self.writer.close()
 
-                        
-                    
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position
                 for col, row in np.ndindex(self.grid_size):
@@ -346,6 +304,7 @@ class Hexagon(Stage):
                         pygame.draw.polygon(self.surface, self.color[col, row], self.hexagon_vertices[col, row])
                         # Show it on screen:
                         pygame.display.update()
+
             elif pygame.mouse.get_pressed()[2]:  # True if right-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position
                 for col, row in np.ndindex(self.grid_size):
@@ -370,15 +329,6 @@ class Hexagon(Stage):
                             state = 'dead'
                         self.log('This cell {} is'.format((col, row))+ ' ' + state +'. Alive neighbours: {}'.format(
                             self.alive_hexagon(self.grid, col, row)))
-
-    def run(self) -> None:
-        # Main loop
-        while True:
-            self.handle_events()
-            #self.surface.fill(COLOR_GRID)
-            if self.running:
-                time.sleep(0.01)
-                self.update()
 
 ## Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))

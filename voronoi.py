@@ -222,36 +222,11 @@ class VoronoiGrid(Stage):
         # Set the loading flag to false 
         self.loading = False
         
+        # Stage Name
+        self.stage_name = "Voronoi"
+
         self.change_caption()
-        
-        # Attribute to communicate with main log
-        self.log_state = 0
 
-        # Array of images to generate gifs
-        self.writer = None
-        self.count_writer = 0
-        
-        # Message for global log
-        self.message = None
-    def log(self, message):
-        self.message = message
-        self.log_state = self.log_state + 1
-        
-    def screenshot(self) -> None:
-        # Save screen in a folder 
-        if self.recording == True:
-            newpath = "saved_images\\" + "Voronoi" + self.rule.replace('/','_')
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-            pygame.image.save(self.surface, "saved_images/"+ "Voronoi" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
-
-    def record(self) -> None:
-        # Save frames in buffer
-        if self.recording:
-            # Save frame
-            frame = pygame.surfarray.array3d(pygame.display.get_surface())
-            self.writer.append_data(frame)
-            self.count_writer+=1
 
     # Function to calculate the number of alive neighbours
     def alive_voronoi(self, cell: int) -> int:
@@ -268,17 +243,6 @@ class VoronoiGrid(Stage):
         for neighbour in self.neighbours[cell]:
             alive_neighbours = alive_neighbours + self.grid[neighbour]
         return int(alive_neighbours)
-
-    def change_caption(self) -> None:
-        # Processing window caption:
-        birth_string = [str(x) for x in self.alive_neighbours_to_be_born]
-        survival_string = [str(x) for x in self.alive_neighbours_to_survive]
-        self.rule = 'B'+"".join(birth_string)+'S'+"".join(survival_string)
-        if self.recording:
-            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' ' + 'in Voronoi grid (RECORDING SCREEN)' 
-        else:
-            caption = 'B'+"".join(birth_string)+'/S'+"".join(survival_string)+' ' + 'in Voronoi grid' 
-        pygame.display.set_caption(caption) 
     
     def update(self) -> None:
         """
@@ -360,6 +324,7 @@ class VoronoiGrid(Stage):
                 #     if self.recording:
                 #         self.screenshot()
 
+                # Record Event
                 elif event.key == pygame.K_r:
                     self.recording = not self.recording
                     self.change_caption()
@@ -416,14 +381,6 @@ class VoronoiGrid(Stage):
                             self.log('This cell ({}) is'.format((cell[0]))+ ' ' + state +'. Alive neighbours: {}'.format(
                                 self.alive_voronoi(cell)))
                             
-    def run(self) -> None:
-        # Main loop
-        while True:
-            self.handle_events()
-            # self.surface.fill(COLOR_GRID)
-            if self.running:
-                # time.sleep(self.delay)
-                self.update()
 
 # # Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))
