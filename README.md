@@ -9,6 +9,7 @@ The goal was to develope an open source software to recreate cellular automaton 
 - [Python](https://www.python.org/) (version >= 3.6 recommended) <!-- F-strings https://peps.python.org/pep-0498/ -->
 - [Pygame](https://www.pygame.org/)
 - [Tkinter](https://docs.python.org/3/library/tkinter.html)
+- [Imageio](https://imageio.readthedocs.io/en/stable/user_guide/installation.html)
 
 ### Installing
 
