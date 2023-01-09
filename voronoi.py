@@ -19,6 +19,7 @@ import pygame
 import numpy as np
 from scipy.spatial import Voronoi
 from typing import List, Tuple
+import imageio
 
 # Own local imports
 from stage import Stage
@@ -225,6 +226,10 @@ class VoronoiGrid(Stage):
         
         # Attribute to communicate with main log
         self.log_state = 0
+
+        # Array of images to generate gifs
+        self.writer = None
+        self.count_writer = 0
         
         # Message for global log
         self.message = None
@@ -240,6 +245,13 @@ class VoronoiGrid(Stage):
                 os.makedirs(newpath)
             pygame.image.save(self.surface, "saved_images/"+ "Voronoi" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
 
+    def record(self) -> None:
+        # Save frames in buffer
+        if self.recording:
+            # Save frame
+            frame = pygame.surfarray.array3d(pygame.display.get_surface())
+            self.writer.append_data(frame)
+            self.count_writer+=1
 
     # Function to calculate the number of alive neighbours
     def alive_voronoi(self, cell: int) -> int:
@@ -308,8 +320,12 @@ class VoronoiGrid(Stage):
             pygame.draw.polygon(self.surface, COLOR_GRID,
                                 self.voronoi_vertices[cell], 1)
         # Save screen in a folder 
-        self.screenshot()
+        #self.screenshot()
         
+        # Save frame to generate record
+        self.record()
+
+
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -338,11 +354,22 @@ class VoronoiGrid(Stage):
                         pygame.draw.polygon(
                             self.surface, self.color[cell], self.voronoi_vertices[cell])
                     self.update()
-                elif event.key == pygame.K_s: # Check if s key gets pressed down
+                # elif event.key == pygame.K_s: # Check if s key gets pressed down
+                #     self.recording = not self.recording
+                #     self.change_caption()
+                #     if self.recording:
+                #         self.screenshot()
+
+                elif event.key == pygame.K_r:
                     self.recording = not self.recording
                     self.change_caption()
                     if self.recording:
-                        self.screenshot()
+                        self.writer = imageio.get_writer("Voronoi" + self.rule.replace('/','_') +"_"+str(pygame.time.get_ticks())+".gif", mode='I', fps=1)
+                        self.count_writer = 0
+                        self.record()
+                    # If get pressed down and the list of images is not empty:
+                    elif (not self.recording) and (self.count_writer > 0):
+                        self.writer.close()
 
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position

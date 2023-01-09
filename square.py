@@ -18,6 +18,7 @@ import os
 import pygame
 import numpy as np
 from typing import List, Tuple
+import imageio
 
 # Own local imports
 from stage import Stage
@@ -103,6 +104,10 @@ class Square(Stage):
         
         # Set the recording flag to False
         self.recording = False
+
+        # Array of images to generate gifs
+        self.writer = None
+        self.count_writer = 0
         
         self.change_caption()
         
@@ -122,6 +127,14 @@ class Square(Stage):
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
             pygame.image.save(self.surface, "saved_images/"+ "square" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+
+    def record(self) -> None:
+        if self.recording:
+            # Save frame
+            frame = pygame.surfarray.array3d(pygame.display.get_surface())
+            self.writer.append_data(frame)
+            self.count_writer+=1
+
 
     # Function to calculate the number of alive neighbours
     def alive_square(self, cell: np.ndarray, x: int, y: int) -> int:
@@ -200,8 +213,11 @@ class Square(Stage):
                 self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
         
         # Save screen in a folder 
-        self.screenshot()
+        #self.screenshot()
         
+        # Save frame to generate record
+        self.record()
+
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -229,11 +245,21 @@ class Square(Stage):
                         pygame.draw.rect(
                             self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
                     pygame.display.update()
-                elif event.key == pygame.K_s: # Check if s key gets pressed down
+                # elif event.key == pygame.K_s: # Check if s key gets pressed down
+                #     self.recording = not self.recording
+                #     self.change_caption()
+                #     if self.recording:
+                #         self.screenshot()
+                elif event.key == pygame.K_r:
                     self.recording = not self.recording
                     self.change_caption()
                     if self.recording:
-                        self.screenshot()
+                        self.writer = imageio.get_writer("Square" + self.rule.replace('/','_') +"_"+str(pygame.time.get_ticks())+".gif", mode='I', fps=1)
+                        self.count_writer = 0
+                        self.record()
+                    # If get pressed down and the list of images is not empty:
+                    elif (not self.recording) and (self.count_writer > 0):
+                        self.writer.close()
 
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position

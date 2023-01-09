@@ -1,12 +1,11 @@
 import imageio
-import os
 
-# Crea una lista de imágenes
-images = []
-for file_name in os.listdir('saved_images\\hexagonB2S345_blinker'):
-    if file_name.endswith('.png'):
-        file_path = os.path.join('saved_images\\hexagonB2S345_blinker', file_name)
-        images.append(imageio.v2.imread(file_path))
+# Crea un archivo de animación usando imageio
+filename = 'animation.gif'
+writer = imageio.get_writer(filename, mode='I', fps=30)
 
-# Genera el gif
-imageio.mimsave('gif_name.gif', images, fps=1)
+# Comprueba si el archivo de animación está vacío
+if writer.get_length == 0:
+    print("El archivo de animación está vacío")
+else:
+    print("El archivo de animación tiene", writer.get_length, "fotogramas")

@@ -376,6 +376,7 @@ def global_handle_events() -> None:
     stage_log_state_B = stage.log_state
     if stage_log_state_A != stage_log_state_B:
         log(stage.message)
+
 ###########
 # Main Loop
 ###########

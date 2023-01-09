@@ -11,6 +11,7 @@
 
 # IMPORTS
 # Standard library imports
+import tempfile
 import time
 import os 
 
@@ -18,6 +19,8 @@ import os
 import pygame
 import numpy as np
 from typing import List, Tuple
+import imageio
+
 
 # Own local imports
 from stage import Stage
@@ -55,7 +58,7 @@ class Hexagon(Stage):
                  COLOR_SURVIVED: Tuple[int, int, int] = (255, 0, 0),
                  alive_neighbours_to_be_born: List[int] = [2],
                  alive_neighbours_to_survive: List[int] = [3, 4],
-                 initial_alive_probability: float = 0) -> None:
+                 initial_alive_probability: float = 0 )-> None:
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED,
                          alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
@@ -119,6 +122,11 @@ class Hexagon(Stage):
         
         # Message for global log
         self.message = None
+
+        # Array of images to generate gifs
+        self.writer = None
+        self.count_writer = 0
+
     def log(self, message):
         self.message = message
         self.log_state = self.log_state + 1
@@ -131,6 +139,14 @@ class Hexagon(Stage):
                 os.makedirs(newpath)
             pygame.image.save(self.surface, "saved_images/"+ "hexagon" + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
         
+    def record(self) -> None:
+        # Save frames in buffer
+        if self.recording:
+            # Save frame
+            frame = pygame.surfarray.array3d(pygame.display.get_surface())
+            self.writer.append_data(frame)
+            self.count_writer+=1
+           
         
     # Calculate the coordinates of the hexagon corresponding to (col,row) coordinates.
     # Takes the length of the side of the hexagons and the position of the (0,0) one as
@@ -269,7 +285,10 @@ class Hexagon(Stage):
                 self.surface, self.color[col, row], self.hexagon_vertices[col, row])
         
         # Save screen in a folder 
-        self.screenshot()
+        #self.screenshot()
+
+        # Save frame to generate record
+        self.record()
         
         # Show updates on screen
         pygame.display.update()
@@ -298,11 +317,23 @@ class Hexagon(Stage):
                         pygame.draw.polygon(
                             self.surface, self.color[col, row], self.hexagon_vertices[col, row])
                     pygame.display.update()
-                elif event.key == pygame.K_s: # Check if s key gets pressed down
+                # elif event.key == pygame.K_s: # Check if s key gets pressed down
+                #     self.recording = not self.recording
+                #     self.change_caption()
+                #     if self.recording:
+                #         self.screenshot()
+                elif event.key == pygame.K_r:
                     self.recording = not self.recording
                     self.change_caption()
                     if self.recording:
-                        self.screenshot()
+                        self.writer = imageio.get_writer("Hexagon" + self.rule.replace('/','_') +"_"+str(pygame.time.get_ticks())+".gif", mode='I', fps=1)
+                        self.count_writer = 0
+                        self.record()
+                    # If get pressed down and the list of images is not empty:
+                    elif (not self.recording) and (self.count_writer > 0):
+                        self.writer.close()
+
+                        
                     
             if pygame.mouse.get_pressed()[0]:  # True if left-click
                 pos = pygame.mouse.get_pos()  # Get mouse pointer position
