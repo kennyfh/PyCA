@@ -1,0 +1,14 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: PyCA
+message: Cellular automaton in Python
+type: software
+authors:
+  - given-names: Flores Huamán
+    family-names: Kenny Jesús
+    email: kenflohua@alum.us.es
+  - given-names: Jiménez Lepe
+    family-names: Teorodo
+    email: teojimenezlepe@hotmail.com
