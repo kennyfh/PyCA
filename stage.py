@@ -12,17 +12,15 @@ import time
 import pygame
 import imageio
 import os
+import numpy as np
 
 COLOR_BLACK = (10, 10, 10)
 COLOR_WHITE = (255, 255, 255)
 COLOR_RED = (255, 0, 0)
 COLOR_GREEN = (0, 255, 0)
 COLOR_BLUE = (0, 0, 255)
-
 COLOR_GRID = (40, 40, 40)
 
-# EVANGELION_GREEN = (10,144,98)
-# EVANGELION_PURPLE = (157,68,199)
 
 ################################################################################################################################################
 # Parameters that should be controled by the user through tkinter interface:
@@ -31,22 +29,6 @@ COLOR_GRID = (40, 40, 40)
 # Customize birth and survival colors!
 COLOR_JUST_BORN = COLOR_GREEN
 COLOR_SURVIVED = COLOR_RED
-
-# Create your own rules based on number of neighbours!
-alive_neighbours_to_be_born = [2]
-alive_neighbours_to_survive = [2]
-
-# B1S- makes cool patterns
-# B-S123456 too
-# B2S2 shows some blinkers and is similar to B2S23 square grid in proportion to neighbourhood
-# Check B2S345 and others B2S-
-# Look for reference of previous works (some rules show gliders)
-
-
-# These are constant values: (screen dimensions)
-Lx = 800
-Ly = 600
-
 
 class Stage:
     """
@@ -118,11 +100,11 @@ class Stage:
                     # fun1
                     self.key_down()
                     pygame.display.update()
-                # elif event.key == pygame.K_s: # Check if s key gets pressed down
-                #     self.recording = not self.recording
-                #     self.change_caption()
-                #     if self.recording:
-                #         self.screenshot()
+                elif event.key == pygame.K_s: # Check if s key gets pressed down
+                    self.recording = not self.recording
+                    self.change_caption()
+                    if self.recording:
+                        self.screenshot()
                 elif event.key == pygame.K_r:
                     self.recording = not self.recording
                     self.change_caption()
@@ -194,15 +176,15 @@ class Stage:
                 "saved_images", self.stage_name, self.rule.replace('/', '_'))
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
-            # pygame.image.save(self.surface, "saved_images/"+ self.stage_name + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
-            path = os.path.join("saved_images",
-                                self.stage_name, self.rule.replace('/', '_'),
-                                str(pygame.time.get_ticks()), ".png")
-            pygame.image.save(self.surface, path)
+            pygame.image.save(self.surface, "saved_images/"+ self.stage_name + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+            # path = os.path.join("saved_images",
+            #                     self.stage_name, self.rule.replace('/', '_'),
+            #                     str(pygame.time.get_ticks()), ".png")
+            # pygame.image.save(self.surface, path)
 
     def record(self) -> None:
         if self.recording:
             # Save frame
-            frame = pygame.surfarray.array3d(pygame.display.get_surface())
-            self.writer.append_data(frame)
+            frame = pygame.surfarray.pixels3d(pygame.display.get_surface())
+            self.writer.append_data(np.flipud(np.rot90(frame)))
             self.count_writer += 1

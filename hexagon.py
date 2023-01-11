@@ -24,6 +24,8 @@ import imageio
 
 # Own local imports
 from stage import Stage
+
+
 Lx = 800
 Ly = 600
 
