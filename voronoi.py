@@ -302,6 +302,8 @@ class VoronoiGrid(Stage):
                         self.color[cell] = COLOR_BLACK
                         pygame.draw.polygon(
                             self.surface, self.color[cell], self.voronoi_vertices[cell])
+                        pygame.draw.polygon(
+                            self.surface, COLOR_GRID, self.voronoi_vertices[cell], 1)
 
     def left_click(self) -> None:
         pos = pygame.mouse.get_pos()  # Get mouse pointer position
