@@ -101,9 +101,6 @@ class Stage:
                     self.key_down()
                     pygame.display.update()
                 elif event.key == pygame.K_s: # Check if s key gets pressed down
-                    self.recording = not self.recording
-                    self.change_caption()
-                    if self.recording:
                         self.screenshot()
                 elif event.key == pygame.K_r:
                     self.recording = not self.recording
@@ -171,12 +168,7 @@ class Stage:
 
     def screenshot(self) -> None:
         # Save screen in a folder
-        if self.recording:
-            newpath = os.path.join(
-                "saved_images", self.stage_name, self.rule.replace('/', '_'))
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-            pygame.image.save(self.surface, "saved_images/"+ self.stage_name + self.rule.replace('/','_') +"/"+str(pygame.time.get_ticks())+".png")
+        pygame.image.save(self.surface, self.stage_name + self.rule.replace('/','_') +"_"+str(pygame.time.get_ticks())+".png")
             # path = os.path.join("saved_images",
             #                     self.stage_name, self.rule.replace('/', '_'),
             #                     str(pygame.time.get_ticks()), ".png")
