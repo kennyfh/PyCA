@@ -96,6 +96,7 @@ def show_controls() -> None:
                                     "SPACE BAR: Start/stop simulation \n" +
                                     "RIGHT ARROW: Simulate one step \n" + 
                                     "DOWN ARROW: Kill all cells \n \n" + 
+                                    "S: Take a screenshot"  
                                     "R: Start/stop recording screen")
 #################
 # Generate Header
