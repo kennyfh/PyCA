@@ -26,4 +26,5 @@ jobs:
 
     - name: Test script
       run: |
+        source venv/bin/activate
         python main.py
