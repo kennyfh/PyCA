@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PYCA"
+version = "0.1.0"
+
+requires-python = ">=3.8"
+authors = [
+  {name = "Kenny Jesús Flores Huamán", email = "kflores1@us.es"},
+  {name = "Teodoro Jiménez Lepe", email = "teojimenezlepe@hotmail.com"},
+]
+maintainers = [
+  {name = "Kenny Jesús Flores Huamán", email = "kflores1@us.es"},
+  {name = "Teodoro Jiménez Lepe", email = "teojimenezlepe@hotmail.com"},
+]
+description = "Cellular Automaton in Python"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["python", "cellular-automata", "pygame", "tkinter", "voronoi-diagram", "hexagonal-grids"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+]
+
+
+dynamic = ["dependencies"]
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project.urls]
+Homepage = "https://github.com/kennyfh/PyCA/"
+Documentation = "https://github.com/kennyfh/PyCA/wiki"
+Repository = "https://github.com/kennyfh/PyCA/"

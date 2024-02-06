@@ -19,16 +19,16 @@ Clone the repository:
 git clone https://github.com/kennyfh/PyCA.git
 ```
 
-Install the dependencies:
+Setup the required dependencies:
 
 ```
-pip install -r requirements.txt
+pip install -e.
 ``` 
 
 
 ## Usage
 
-Run the command `python main.py` to start our software tool.
+Run the command `python scripts/main.py` to start our software tool.
 
 ## Contributing
 
@@ -52,5 +52,5 @@ This project is licensed under the GNU General Public License version 3.0 (GPL-3
 The project's GitHub wiki contains additional documentation and resources. You can access it [here](https://github.com/kennyfh/PyCA/wiki).
 
 ## Team
-* Kenny Jesús Flores Huamán (kenflohua AT alum.us.es)
+* Kenny Jesús Flores Huamán (kflores1 AT us.es)
 * Teodoro Jiménez Lepe (teojimenezlepe AT hotmail.com)

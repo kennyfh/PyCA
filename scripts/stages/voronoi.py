@@ -22,8 +22,8 @@ from typing import List, Tuple
 import imageio
 
 # Own local imports
-from stage import Stage
-from pixel_perfect_polygon_hitbox import ordered_vertices, is_in_polygon
+from .stage import Stage
+from .pixel_perfect_polygon_hitbox import ordered_vertices, is_in_polygon
 
 Lx = 800
 Ly = 600

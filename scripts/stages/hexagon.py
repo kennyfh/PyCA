@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ----------------------------------------------------------------------------
-# Module: Square
+# Module: Hexagon
 # Created By  : TEODORO JIMÉNEZ LEPE
 #               KENNY JESÚS FLORES HUAMÁN
 # version ='1.0'
 # ---------------------------------------------------------------------------
-# This file contains a class to generate Square Grid
+# This file contains a class to generate Hexagon Grid
 # ---------------------------------------------------------------------------
 
 # IMPORTS
 # Standard library imports
+import tempfile
 import time
-import os
+import os 
 
 # Third-party imports
 import pygame
@@ -20,8 +21,10 @@ import numpy as np
 from typing import List, Tuple
 import imageio
 
+
 # Own local imports
-from stage import Stage
+from .stage import Stage
+
 
 Lx = 800
 Ly = 600
@@ -33,10 +36,12 @@ COLOR_GRID = (40, 40, 40)
 # Start pygame
 pygame.init()
 
+# Class for the hexagonal stage:
 
-class Square(Stage):
+
+class Hexagon(Stage):
     """
-    A class for generating and visualizing a cellular automata stage in the form of a square grid.
+    A class for generating and visualizing a cellular automata stage in the form of a hexagonal grid.
 
     Args:
         surface (pygame.Surface): The surface on which the stage will be drawn.
@@ -50,34 +55,35 @@ class Square(Stage):
 
     def __init__(self,
                  surface: pygame.Surface,
-                 L: int = 10,
+                 L: int = 5,
                  COLOR_JUST_BORN: Tuple[int, int, int] = (0, 255, 0),
                  COLOR_SURVIVED: Tuple[int, int, int] = (255, 0, 0),
-                 alive_neighbours_to_be_born: List[int] = [3],
-                 alive_neighbours_to_survive: List[int] = [2, 3],
-                 initial_alive_probability: float = 0.0) -> None:
-
+                 alive_neighbours_to_be_born: List[int] = [2],
+                 alive_neighbours_to_survive: List[int] = [3, 4],
+                 initial_alive_probability: float = 0 )-> None:
         # Set the surface to draw the stage on
         super().__init__(surface, L, COLOR_JUST_BORN, COLOR_SURVIVED,
                          alive_neighbours_to_be_born, alive_neighbours_to_survive, initial_alive_probability)
 
         # Set the background color
         self.surface.fill(COLOR_GRID)
-
+        
         # Set the size of the stage
         self.size = surface.get_size()
 
         # Calculations to adapt grid to the screen according to Lx, Ly and L:
-        effective_width = self.L
-        effective_height = self.L
-        nx = np.floor(Lx/effective_width).astype(int)
-        ny = np.floor(Ly/effective_height).astype(int)
+        effective_width = np.sqrt(3)*self.L + 3
+        effective_height = self.L + 2
+        nx = np.floor(Lx/effective_width-1/2).astype(int)
+        ny = np.floor((2/3)*(Ly/effective_height - 0.5)).astype(int)
+        if ny % 2 != 0:
+            ny = ny - 1
 
         # Set the size of the grid
         self.grid_size = (nx, ny)
 
         # Toggle between all dead and random initial state
-        self.initial_alive_probability = self.initial_alive_probability  # 0 to 1
+        self.initial_alive_probability = initial_alive_probability  # 0 to 1
 
         # Color to fill the hexagon (changes after every step)
         self.color = np.ndarray((nx, ny), dtype=object)
@@ -85,36 +91,104 @@ class Square(Stage):
         # Storage rectangular hitbox for every hexagon.
         self.RectHitbox = np.ndarray((nx, ny), dtype=object)
 
-        # Stage Name
-        self.stage_name = "Square"
-
         # Create and display initial state grid
         self.grid = np.zeros((nx, ny))
+        self.hexagon_vertices = np.ndarray((nx, ny), dtype=object)
         for col, row in np.ndindex(self.grid.shape):
-            if np.random.rand() < self.initial_alive_probability:  # Threshold for initial alive state
+            # Get vertices of every hexagon before running
+            self.hexagon_vertices[col, row] = self.calculate_hexagon_vertices(
+                col, row, self.L)
+            if np.random.rand() < initial_alive_probability:  # Threshold for initial alive state
                 self.grid[col, row] = 1  # Tag alive cells with 1
                 self.color[col, row] = COLOR_WHITE  # Color them white
             else:
                 self.grid[col, row] = 0  # Tag dead cells with 0
                 self.color[col, row] = COLOR_BLACK  # Color them white
             # Display on hexagons on screen ans storage their rectangular hitbox:
-            self.RectHitbox[col, row] = pygame.draw.rect(
-                self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
+            self.RectHitbox[col, row] = pygame.draw.polygon(
+                self.surface, self.color[col, row], self.hexagon_vertices[col, row])
         # Update screen:
         pygame.display.update()
+
+        # Set the running flag to False
+        self.running = False
+        
+        # Set the recording flag to False
+        self.recording = False
+
+        # Stage Name
+        self.stage_name = "Hexagon"
+        
+        # Processing window caption:
         self.change_caption()
+        
+    # Calculate the coordinates of the hexagon corresponding to (col,row) coordinates.
+    # Takes the length of the side of the hexagons and the position of the (0,0) one as
+    # parameters.
+    def calculate_hexagon_vertices(self, col: int, row: int, side_length: int) -> List[Tuple[int, int]]:
+        """
+            Calculate the coordinates of the hexagon corresponding to (col,row) coordinates.
+            Takes the length of the side of the hexagons and the position of the (0,0) one as parameters.
+
+            Args:
+                col : int
+                    Column index of the hexagon.
+                row : int
+                    Row index of the hexagon.
+                side_length : float
+                    Length of the side of the hexagon.
+
+            Returns:
+                vertices : List of tuples containing the coordinates of the vertices of the hexagon in the form (x, y).
+        """
+
+        # Coordinates for the top-left hexagon north-west vertex
+        grid_topleft = np.array([3, self.L/2])
+
+        width_hex = side_length*np.sqrt(3)  # Width of an hexagon
+
+        # Space between hexagon in order to acquire grid appearance:
+        step_x = width_hex + 3
+        step_y = side_length*1.5 + 3
+
+        # Vertices coordinates:
+        vertex = np.empty((6), dtype=object)
+        vertex[0] = grid_topleft + np.array([step_x*col, step_y*row])
+        vertex[1] = grid_topleft + \
+            np.array([step_x*col, step_y*row+side_length])
+        vertex[2] = grid_topleft + \
+            np.array([step_x*col+0.5*np.sqrt(3)*side_length,
+                     step_y*row+1.5*side_length])
+        vertex[3] = grid_topleft + \
+            np.array([step_x*col+np.sqrt(3)*side_length, step_y*row+side_length])
+        vertex[4] = grid_topleft + \
+            np.array([step_x*col+np.sqrt(3)*side_length, step_y*row])
+        vertex[5] = grid_topleft + \
+            np.array([step_x*col+0.5*np.sqrt(3)*side_length,
+                     step_y*row-0.5*side_length])
+
+        # There is an offset between even row hexagons and odd row hexagons:
+        if row % 2 == 1:
+            for i in range(len(vertex)):
+                vertex[i] = vertex[i] + np.array([step_x/2, 0])
+
+        # Output array of vertices as a list of tuples:
+        vertices = []
+        for i in range(6):
+            vertices.append(tuple(vertex[i]))
+        return vertices
 
     # Function to calculate the number of alive neighbours
-    def alive_square(self, cell: np.ndarray, x: int, y: int) -> int:
-        """Calculate the number of alive neighbours for a cell in a square grid.
+    def alive_hexagon(self, cell: np.ndarray, x: int, y: int) -> int:
+        """Calculate the number of alive neighbours for a cell in a hexagonal grid.
 
         Args:
-            cell (np.ndarray): 2D array representing the current state of the grid.
-            x (int): X coordinate of the cell being checked.
-            y (int): Y coordinate of the cell being checked.
+            cell (np.ndarray): The current state of the grid.
+            x (int): The x-coordinate of the cell.
+            y (int): The y-coordinate of the cell.
 
         Returns:
-            int: Number of alive neighbours for the cell.
+            int: The number of alive neighbours.
         """
         # Set periodic boundary conditions (toroidal shape)
         x_pre = (x-1) % cell.shape[0]
@@ -125,25 +199,28 @@ class Square(Stage):
         # In order to storage this information in a matrix (nx, ny),
         # we need to distinguish between odd and even rows. This is due to
         # the horizontal offset between them.
-
-        alive_neighbours = cell[x_pre, y] + cell[x_post, y]   \
-            + cell[x_pre, y_pre] + cell[x, y_pre] + cell[x_post, y_pre] \
-            + cell[x_pre, y_post] + cell[x, y_post] + cell[x_post, y_post]
+        if y % 2 == 0:
+            alive_neighbours = cell[x_pre, y] + cell[x_post, y]   \
+                + cell[x_pre, y_pre] + cell[x, y_pre] \
+                + cell[x_pre, y_post] + cell[x, y_post] #+ cell[x,y]
+        else:
+            alive_neighbours = cell[x_pre, y] + cell[x_post, y]   \
+                + cell[x, y_pre] + cell[x_post, y_pre] \
+                + cell[x, y_post] + cell[x_post, y_post] #+ cell[x,y]
 
         return int(alive_neighbours)
-
+    
     # Update state of the cellular automata and the screen
     def update(self) -> None:
-
         # Processing window caption:
         self.change_caption()
-
+        
         # Initially asume every cell is dead (0)
         updated_cells = np.zeros((self.grid.shape[0], self.grid.shape[1]))
 
         for col, row in np.ndindex(self.grid.shape):
             # Calculate the number of alive neighbours for every cell
-            alive_neighbours = self.alive_square(self.grid, col, row)
+            alive_neighbours = self.alive_hexagon(self.grid, col, row)
 
             if self.grid[col, row] == 1:
                 # Check if the conditions for birth are met.
@@ -166,15 +243,15 @@ class Square(Stage):
                 # respectively).
 
             # Draw updated hexagons
-            pygame.draw.rect(
-                self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
-
-        # Save screen in a folder
-        # self.screenshot()
+            pygame.draw.polygon(
+                self.surface, self.color[col, row], self.hexagon_vertices[col, row])
+        
+        # Save screen in a folder 
+        #self.screenshot()
 
         # Save frame to generate record
         self.record()
-
+        
         # Show updates on screen
         pygame.display.update()
         # Storage updated grid state in main grid
@@ -183,10 +260,10 @@ class Square(Stage):
     # Special key events
     def key_down(self) -> None:
         for col, row in np.ndindex(self.grid.shape):
-            self.grid[col, row] = 0  # Kill every cell
-            self.color[col, row] = COLOR_BLACK
-            pygame.draw.rect(
-                self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
+                        self.grid[col, row] = 0  # Kill every cell
+                        self.color[col, row] = COLOR_BLACK
+                        pygame.draw.polygon(
+                            self.surface, self.color[col, row], self.hexagon_vertices[col, row])
 
     def left_click(self) -> None:
         pos = pygame.mouse.get_pos()  # Get mouse pointer position
@@ -196,8 +273,7 @@ class Square(Stage):
                 self.grid[col, row] = 1  # Cell becomes alive
                 self.color[col, row] = COLOR_WHITE  # Thus, gets white
                 # Draw new hexagon:
-                pygame.draw.rect(
-                    self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
+                pygame.draw.polygon(self.surface, self.color[col, row], self.hexagon_vertices[col, row])
                 # Show it on screen:
                 pygame.display.update()
 
@@ -209,8 +285,7 @@ class Square(Stage):
                 self.grid[col, row] = 0  # Cell is killed
                 self.color[col, row] = COLOR_BLACK  # Thus, gets black
                 # Draw new hexagon:
-                pygame.draw.rect(
-                    self.surface, self.color[col, row], (col * self.L, row * self.L, self.L - 1, self.L - 1))
+                pygame.draw.polygon(self.surface, self.color[col, row], self.hexagon_vertices[col, row])
                 # Show it on screen:
                 pygame.display.update()
 
@@ -223,10 +298,10 @@ class Square(Stage):
                 else:
                     state = 'dead'
                 self.log('This cell {} is'.format((col, row))+ ' ' + state +'. Alive neighbours: {}'.format(
-                    self.alive_square(self.grid, col, row)))
+                    self.alive_hexagon(self.grid, col, row)))
 
 
-# Check this script independetly: (do not uncomment if running main.py)
+## Check this script independetly: (do not uncomment if running main.py)
 # window = pygame.display.set_mode((800, 600))
-# stage = Square(window)
+# stage = Hexagon(window, L = 5.5)
 # stage.run()

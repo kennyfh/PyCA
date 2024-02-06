@@ -22,9 +22,9 @@ from tkinter import messagebox
 from typing import Tuple
 
 # Own local imports
-from hexagon import Hexagon
-from square import Square
-from voronoi import VoronoiGrid
+from stages.hexagon import Hexagon
+from stages.square import Square
+from stages.voronoi import VoronoiGrid
 
 
 # CODE
